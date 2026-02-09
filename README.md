@@ -104,11 +104,11 @@ Notas:
 - OpenAPI: Structure con schemas de request + 422 Validation.
 - OpenAPI: Virtual con schemas de request + 422 Validation.
 - OpenAPI: Assessments con schemas de request + 422 Validation.
+- OpenAPI: Files + Tracking heartbeat con schemas request/response + 422 Validation.
 
 ## Pendientes (especificos)
 - Backend/Files: endpoint de stream directo (opcional).
 - Backend/Messenger: correr worker `messenger:consume` en entorno/infra de producción (systemd/supervisor/k8s).
-- Backend/Docs: OpenAPI detallado por módulo, DTOs/validaciones/serializer groups completos.
 - Backend/Tests: unit/integration + fixtures adicionales.
 - DevOps/Prod: dockerfiles prod, envs, migraciones, backups, despliegue en hosting del cliente.
 - Docs: ADRs, diagrama general, flujo de archivos/MinIO y SMTP.

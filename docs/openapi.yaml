@@ -408,6 +408,51 @@ components:
         question_id: { type: integer, minimum: 1 }
         answer_text: { type: string }
         is_correct: { type: boolean }
+    FilePresignRequest:
+      type: object
+      properties:
+        filename: { type: string }
+        mime_type: { type: string }
+        size: { type: integer, minimum: 1 }
+      required: [filename, mime_type, size]
+    FileCompleteRequest:
+      type: object
+      properties:
+        key: { type: string }
+        bucket: { type: string }
+        original_name: { type: string }
+        mime_type: { type: string }
+        size: { type: integer, minimum: 1 }
+      required: [key, bucket, original_name, mime_type, size]
+    FilePresignResponse:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            url: { type: string }
+            key: { type: string }
+            bucket: { type: string }
+            expires_in: { type: integer }
+      required: [data]
+    FileDownloadResponse:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            url: { type: string }
+            key: { type: string }
+            bucket: { type: string }
+            expires_in: { type: integer }
+      required: [data]
+    TrackingHeartbeatRequest:
+      type: object
+      properties:
+        route: { type: string }
+        course_id: { type: integer }
+        timestamp: { type: integer }
+      required: [route, timestamp]
     ImportUsersRequest:
       type: object
       properties:
@@ -2809,28 +2854,18 @@ paths:
         required: true
         content:
           application/json:
-            schema:
-              type: object
-              properties:
-                filename: { type: string }
-                mime_type: { type: string }
-                size: { type: integer }
-              required: [filename, mime_type, size]
+            schema: { $ref: '#/components/schemas/FilePresignRequest' }
       responses:
         '200':
           description: OK
           content:
             application/json:
-              schema:
-                type: object
-                properties:
-                  data:
-                    type: object
-                    properties:
-                      url: { type: string }
-                      key: { type: string }
-                      bucket: { type: string }
-                      expires_in: { type: integer }
+              schema: { $ref: '#/components/schemas/FilePresignResponse' }
+        '422':
+          description: Validation failed
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ValidationError' }
   /files/complete:
     post:
       tags: [Files]
@@ -2839,15 +2874,7 @@ paths:
         required: true
         content:
           application/json:
-            schema:
-              type: object
-              properties:
-                key: { type: string }
-                bucket: { type: string }
-                original_name: { type: string }
-                mime_type: { type: string }
-                size: { type: integer }
-              required: [key, bucket, original_name, mime_type, size]
+            schema: { $ref: '#/components/schemas/FileCompleteRequest' }
       responses:
         '201':
           description: Created
@@ -2857,6 +2884,11 @@ paths:
                 type: object
                 properties:
                   data: { $ref: '#/components/schemas/FileObject' }
+        '422':
+          description: Validation failed
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ValidationError' }
   /files/{id}:
     get:
       tags: [Files]
@@ -2900,16 +2932,7 @@ paths:
           description: OK
           content:
             application/json:
-              schema:
-                type: object
-                properties:
-                  data:
-                    type: object
-                    properties:
-                      url: { type: string }
-                      key: { type: string }
-                      bucket: { type: string }
-                      expires_in: { type: integer }
+              schema: { $ref: '#/components/schemas/FileDownloadResponse' }
         '404':
           description: Not found
           content:
@@ -3040,13 +3063,7 @@ paths:
         required: true
         content:
           application/json:
-            schema:
-              type: object
-              properties:
-                route: { type: string }
-                course_id: { type: integer }
-                timestamp: { type: integer }
-              required: [route, timestamp]
+            schema: { $ref: '#/components/schemas/TrackingHeartbeatRequest' }
       responses:
         '200':
           description: OK
@@ -3062,6 +3079,11 @@ paths:
           content:
             application/json:
               schema: { $ref: '#/components/schemas/ErrorMessage' }
+        '422':
+          description: Validation failed
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ValidationError' }
   /tracking/summary:
     get:
       tags: [Tracking]
