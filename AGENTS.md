@@ -43,7 +43,7 @@
 
 ## Pending - Backend (especifico)
 - Messenger: correr worker `messenger:consume` en entorno/infra de producción (systemd/supervisor/k8s).
-- Docs: OpenAPI detallado, DTOs/validaciones/serializer groups completos (Structure/Virtual/Assessments).
+- Docs: OpenAPI detallado, DTOs/validaciones/serializer groups completos (Virtual/Assessments).
 - Tests: unit/integration + fixtures adicionales.
  
 ## Tests
@@ -78,6 +78,7 @@
 - Auth: responses incluyen `is_active` en el usuario.
 - Tracking: nuevos reportes por ruta/dia y comando `tracking:cleanup`.
 - OpenAPI: Auth/Users/Imports con schemas request + 422 Validation.
+- OpenAPI: Structure con schemas request + 422 Validation.
 - API docs: ejemplos añadidos para users/teachers/admins y PUTs de virtual.
 - API docs: estructura (Structure) reescrita y respuestas unificadas.
 - OpenAPI: ejemplos añadidos en schemas principales.

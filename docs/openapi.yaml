@@ -213,6 +213,88 @@ components:
         first_name: { type: string }
         last_name: { type: string }
         role: { type: string, enum: [ROLE_ADMIN, ROLE_TEACHER, ROLE_STUDENT] }
+    SedeJornadaCreateRequest:
+      type: object
+      properties:
+        name: { type: string, maxLength: 120 }
+        is_active: { type: boolean }
+      required: [name]
+    SedeJornadaUpdateRequest:
+      type: object
+      properties:
+        name: { type: string, maxLength: 120 }
+        is_active: { type: boolean }
+    NivelCreateRequest:
+      type: object
+      properties:
+        name: { type: string, maxLength: 120 }
+        is_active: { type: boolean }
+      required: [name]
+    NivelUpdateRequest:
+      type: object
+      properties:
+        name: { type: string, maxLength: 120 }
+        is_active: { type: boolean }
+    PeriodoCreateRequest:
+      type: object
+      properties:
+        name: { type: string, maxLength: 120 }
+        start_date: { type: string, format: date }
+        end_date: { type: string, format: date }
+      required: [name]
+    PeriodoUpdateRequest:
+      type: object
+      properties:
+        name: { type: string, maxLength: 120 }
+        start_date: { type: string, format: date }
+        end_date: { type: string, format: date }
+    CarreraCreateRequest:
+      type: object
+      properties:
+        name: { type: string, maxLength: 120 }
+        is_active: { type: boolean }
+      required: [name]
+    CarreraUpdateRequest:
+      type: object
+      properties:
+        name: { type: string, maxLength: 120 }
+        is_active: { type: boolean }
+    AsignaturaCreateRequest:
+      type: object
+      properties:
+        name: { type: string, maxLength: 120 }
+        is_active: { type: boolean }
+      required: [name]
+    AsignaturaUpdateRequest:
+      type: object
+      properties:
+        name: { type: string, maxLength: 120 }
+        is_active: { type: boolean }
+    CursoCreateRequest:
+      type: object
+      properties:
+        name: { type: string, maxLength: 150 }
+        capacity: { type: integer, minimum: 0 }
+        start_date: { type: string, format: date }
+        end_date: { type: string, format: date }
+        periodo_id: { type: integer, minimum: 1 }
+        teacher_id: { type: integer, minimum: 1 }
+        sede_jornada_id: { type: integer, minimum: 1 }
+        carrera_id: { type: integer, minimum: 1 }
+        asignatura_id: { type: integer, minimum: 1 }
+      required: [name]
+    CursoUpdateRequest:
+      type: object
+      properties:
+        name: { type: string, maxLength: 150 }
+        capacity: { type: integer, minimum: 0 }
+        start_date: { type: string, format: date }
+        end_date: { type: string, format: date }
+        periodo_id: { type: integer, minimum: 1 }
+        teacher_id: { type: integer, minimum: 1 }
+        sede_jornada_id: { type: integer, minimum: 1 }
+        carrera_id: { type: integer, minimum: 1 }
+        asignatura_id: { type: integer, minimum: 1 }
     ImportUsersRequest:
       type: object
       properties:
@@ -1031,12 +1113,7 @@ paths:
         required: true
         content:
           application/json:
-            schema:
-              type: object
-              properties:
-                name: { type: string, maxLength: 120 }
-                is_active: { type: boolean }
-              required: [name]
+            schema: { $ref: '#/components/schemas/SedeJornadaCreateRequest' }
       responses:
         '201':
           description: Created
@@ -1046,6 +1123,11 @@ paths:
                 type: object
                 properties:
                   data: { $ref: '#/components/schemas/SedeJornada' }
+        '422':
+          description: Validation failed
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ValidationError' }
   /structure/sede-jornadas/{id}:
     put:
       tags: [Structure]
@@ -1059,11 +1141,7 @@ paths:
         required: true
         content:
           application/json:
-            schema:
-              type: object
-              properties:
-                name: { type: string, maxLength: 120 }
-                is_active: { type: boolean }
+            schema: { $ref: '#/components/schemas/SedeJornadaUpdateRequest' }
       responses:
         '200':
           description: OK
@@ -1073,6 +1151,11 @@ paths:
                 type: object
                 properties:
                   data: { $ref: '#/components/schemas/SedeJornada' }
+        '422':
+          description: Validation failed
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ValidationError' }
         '404':
           description: Not found
           content:
@@ -1138,12 +1221,7 @@ paths:
         required: true
         content:
           application/json:
-            schema:
-              type: object
-              properties:
-                name: { type: string, maxLength: 120 }
-                is_active: { type: boolean }
-              required: [name]
+            schema: { $ref: '#/components/schemas/NivelCreateRequest' }
       responses:
         '201':
           description: Created
@@ -1153,6 +1231,11 @@ paths:
                 type: object
                 properties:
                   data: { $ref: '#/components/schemas/Nivel' }
+        '422':
+          description: Validation failed
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ValidationError' }
   /structure/niveles/{id}:
     put:
       tags: [Structure]
@@ -1166,11 +1249,7 @@ paths:
         required: true
         content:
           application/json:
-            schema:
-              type: object
-              properties:
-                name: { type: string, maxLength: 120 }
-                is_active: { type: boolean }
+            schema: { $ref: '#/components/schemas/NivelUpdateRequest' }
       responses:
         '200':
           description: OK
@@ -1180,6 +1259,11 @@ paths:
                 type: object
                 properties:
                   data: { $ref: '#/components/schemas/Nivel' }
+        '422':
+          description: Validation failed
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ValidationError' }
         '404':
           description: Not found
           content:
@@ -1242,13 +1326,7 @@ paths:
         required: true
         content:
           application/json:
-            schema:
-              type: object
-              properties:
-                name: { type: string, maxLength: 120 }
-                start_date: { type: string, format: date }
-                end_date: { type: string, format: date }
-              required: [name]
+            schema: { $ref: '#/components/schemas/PeriodoCreateRequest' }
       responses:
         '201':
           description: Created
@@ -1258,6 +1336,11 @@ paths:
                 type: object
                 properties:
                   data: { $ref: '#/components/schemas/Periodo' }
+        '422':
+          description: Validation failed
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ValidationError' }
   /structure/periodos/{id}:
     put:
       tags: [Structure]
@@ -1271,12 +1354,7 @@ paths:
         required: true
         content:
           application/json:
-            schema:
-              type: object
-              properties:
-                name: { type: string, maxLength: 120 }
-                start_date: { type: string, format: date }
-                end_date: { type: string, format: date }
+            schema: { $ref: '#/components/schemas/PeriodoUpdateRequest' }
       responses:
         '200':
           description: OK
@@ -1286,6 +1364,11 @@ paths:
                 type: object
                 properties:
                   data: { $ref: '#/components/schemas/Periodo' }
+        '422':
+          description: Validation failed
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ValidationError' }
         '404':
           description: Not found
           content:
@@ -1351,12 +1434,7 @@ paths:
         required: true
         content:
           application/json:
-            schema:
-              type: object
-              properties:
-                name: { type: string, maxLength: 120 }
-                is_active: { type: boolean }
-              required: [name]
+            schema: { $ref: '#/components/schemas/CarreraCreateRequest' }
       responses:
         '201':
           description: Created
@@ -1366,6 +1444,11 @@ paths:
                 type: object
                 properties:
                   data: { $ref: '#/components/schemas/Carrera' }
+        '422':
+          description: Validation failed
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ValidationError' }
   /structure/carreras/{id}:
     put:
       tags: [Structure]
@@ -1379,11 +1462,7 @@ paths:
         required: true
         content:
           application/json:
-            schema:
-              type: object
-              properties:
-                name: { type: string, maxLength: 120 }
-                is_active: { type: boolean }
+            schema: { $ref: '#/components/schemas/CarreraUpdateRequest' }
       responses:
         '200':
           description: OK
@@ -1393,6 +1472,11 @@ paths:
                 type: object
                 properties:
                   data: { $ref: '#/components/schemas/Carrera' }
+        '422':
+          description: Validation failed
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ValidationError' }
         '404':
           description: Not found
           content:
@@ -1458,12 +1542,7 @@ paths:
         required: true
         content:
           application/json:
-            schema:
-              type: object
-              properties:
-                name: { type: string, maxLength: 120 }
-                is_active: { type: boolean }
-              required: [name]
+            schema: { $ref: '#/components/schemas/AsignaturaCreateRequest' }
       responses:
         '201':
           description: Created
@@ -1473,6 +1552,11 @@ paths:
                 type: object
                 properties:
                   data: { $ref: '#/components/schemas/Asignatura' }
+        '422':
+          description: Validation failed
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ValidationError' }
   /structure/asignaturas/{id}:
     put:
       tags: [Structure]
@@ -1486,11 +1570,7 @@ paths:
         required: true
         content:
           application/json:
-            schema:
-              type: object
-              properties:
-                name: { type: string, maxLength: 120 }
-                is_active: { type: boolean }
+            schema: { $ref: '#/components/schemas/AsignaturaUpdateRequest' }
       responses:
         '200':
           description: OK
@@ -1500,6 +1580,11 @@ paths:
                 type: object
                 properties:
                   data: { $ref: '#/components/schemas/Asignatura' }
+        '422':
+          description: Validation failed
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ValidationError' }
         '404':
           description: Not found
           content:
@@ -1577,19 +1662,7 @@ paths:
         required: true
         content:
           application/json:
-            schema:
-              type: object
-              properties:
-                name: { type: string, maxLength: 150 }
-                capacity: { type: integer, minimum: 0 }
-                start_date: { type: string, format: date }
-                end_date: { type: string, format: date }
-                periodo_id: { type: integer }
-                teacher_id: { type: integer }
-                sede_jornada_id: { type: integer }
-                carrera_id: { type: integer }
-                asignatura_id: { type: integer }
-              required: [name]
+            schema: { $ref: '#/components/schemas/CursoCreateRequest' }
       responses:
         '201':
           description: Created
@@ -1599,6 +1672,11 @@ paths:
                 type: object
                 properties:
                   data: { $ref: '#/components/schemas/Curso' }
+        '422':
+          description: Validation failed
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ValidationError' }
         '400':
           description: Bad request
           content:
@@ -1617,18 +1695,7 @@ paths:
         required: true
         content:
           application/json:
-            schema:
-              type: object
-              properties:
-                name: { type: string, maxLength: 150 }
-                capacity: { type: integer, minimum: 0 }
-                start_date: { type: string, format: date }
-                end_date: { type: string, format: date }
-                periodo_id: { type: integer }
-                teacher_id: { type: integer }
-                sede_jornada_id: { type: integer }
-                carrera_id: { type: integer }
-                asignatura_id: { type: integer }
+            schema: { $ref: '#/components/schemas/CursoUpdateRequest' }
       responses:
         '200':
           description: OK
@@ -1638,6 +1705,11 @@ paths:
                 type: object
                 properties:
                   data: { $ref: '#/components/schemas/Curso' }
+        '422':
+          description: Validation failed
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ValidationError' }
         '400':
           description: Bad request
           content:

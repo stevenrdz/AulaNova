@@ -101,6 +101,7 @@ Notas:
 - Tracking: nuevos reportes por ruta/día (`/tracking/admin/routes`, `/tracking/teacher/routes`).
 - Tracking: comando `tracking:cleanup` para retención diaria.
 - OpenAPI: Auth/Users/Imports con schemas de request + 422 Validation.
+- OpenAPI: Structure con schemas de request + 422 Validation.
 
 ## Pendientes (especificos)
 - Backend/Files: endpoint de stream directo (opcional).
