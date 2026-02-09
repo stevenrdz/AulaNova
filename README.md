@@ -74,6 +74,7 @@ docker compose -f docker-compose.dev.yml exec -T lms-api php bin/console messeng
 - Docs: ejemplos agregados para `/users/teachers`, `/users/admins`, PUT `/virtual/cursos/{id}` y PUT `/virtual/anuncios/{id}`.
 - Docs: se estandarizaron respuestas JSON en seccion Structure (PUT/DELETE) de `docs/api.md`.
 - Docs: OpenAPI `docs/openapi.yaml` con ejemplos completos en schemas principales.
+- Docs: OpenAPI `InstitutionSettings` + validacion de `logo_url` (URL o key).
 - Tracking: resumen admin/teacher incluye `by_route` (accesos por ruta).
 - Files: endpoint `/files/{id}/stream` agregado.
 - Tests: phpunit OK (5 tests). ESLint frontend OK (sin errores ni warnings).

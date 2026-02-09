@@ -40,6 +40,34 @@ components:
         errors:
           email:
             - Email invalido
+    InstitutionSettings:
+      type: object
+      properties:
+        logo_url:
+          type: string
+          nullable: true
+          description: URL publica o key en storage (ej. uploads/2026/02/logo.png). Puede ser ID de archivo como string.
+        primary_color:
+          type: string
+          nullable: true
+          description: Color hex (ej. #624bff).
+      example:
+        logo_url: uploads/2026/02/af12c9.png
+        primary_color: '#624bff'
+    InstitutionSettingsUpdateRequest:
+      type: object
+      properties:
+        logo_url:
+          type: string
+          nullable: true
+          description: URL publica o key en storage (ej. uploads/2026/02/logo.png). Puede ser ID de archivo como string.
+        primary_color:
+          type: string
+          nullable: true
+          description: Color hex (ej. #624bff).
+      example:
+        logo_url: uploads/2026/02/af12c9.png
+        primary_color: '#624bff'
     PaginationMeta:
       type: object
       properties:
@@ -362,6 +390,25 @@ components:
         user:
           id: 5
           email: student@lms.local
+    ActividadEntregaCreateRequest:
+      type: object
+      properties:
+        content: { type: string, nullable: true, maxLength: 10000 }
+        file_id: { type: integer, nullable: true, minimum: 1 }
+      description: Enviar contenido o file_id (al menos uno).
+      example:
+        content: "Mi respuesta"
+        file_id: 10
+    ActividadEntregaGradeRequest:
+      type: object
+      properties:
+        grade: { type: number, nullable: true, minimum: 0, maximum: 100 }
+        feedback: { type: string, nullable: true, maxLength: 10000 }
+        status: { type: string, nullable: true, enum: [SUBMITTED, GRADED, LATE, RESUBMITTED] }
+      example:
+        grade: 90
+        feedback: "Buen trabajo"
+        status: GRADED
           first_name: Student
           last_name: LMS
         file: null
@@ -816,11 +863,7 @@ paths:
               schema:
                 type: object
                 properties:
-                  data:
-                    type: object
-                    properties:
-                      logo_url: { type: string, nullable: true }
-                      primary_color: { type: string, nullable: true }
+                  data: { $ref: '#/components/schemas/InstitutionSettings' }
     put:
       tags: [Institution]
       security: [bearerAuth: []]
@@ -829,10 +872,7 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                logo_url: { type: string, nullable: true }
-                primary_color: { type: string, nullable: true }
+              $ref: '#/components/schemas/InstitutionSettingsUpdateRequest'
       responses:
         '200':
           description: OK
@@ -841,11 +881,12 @@ paths:
               schema:
                 type: object
                 properties:
-                  data:
-                    type: object
-                    properties:
-                      logo_url: { type: string, nullable: true }
-                      primary_color: { type: string, nullable: true }
+                  data: { $ref: '#/components/schemas/InstitutionSettings' }
+        '422':
+          description: Validation failed
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ValidationError' }
   /health:
     get:
       tags: [Health]
@@ -1945,11 +1986,7 @@ paths:
         required: true
         content:
           application/json:
-            schema:
-              type: object
-              properties:
-                content: { type: string }
-                file_id: { type: integer }
+            schema: { $ref: '#/components/schemas/ActividadEntregaCreateRequest' }
       responses:
         '201':
           description: Created
@@ -2010,12 +2047,7 @@ paths:
         required: true
         content:
           application/json:
-            schema:
-              type: object
-              properties:
-                grade: { type: number }
-                feedback: { type: string }
-                status: { type: string }
+            schema: { $ref: '#/components/schemas/ActividadEntregaGradeRequest' }
       responses:
         '200':
           description: OK

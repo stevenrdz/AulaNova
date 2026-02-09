@@ -73,6 +73,7 @@
 - Messenger retries/failures configurados.
 - Documentación actualizada en `docs/api.md`.
 - OpenAPI YAML: rutas corregidas en `docs/openapi.yaml`.
+- Institution: validacion de `logo_url` ampliada (URL o key) y esquema OpenAPI agregado.
 - API docs: ejemplos añadidos para users/teachers/admins y PUTs de virtual.
 - API docs: estructura (Structure) reescrita y respuestas unificadas.
 - OpenAPI: ejemplos añadidos en schemas principales.

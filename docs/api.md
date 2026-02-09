@@ -492,7 +492,7 @@ Respuestas
 ```json
 {
   "data": {
-    "logo_url": "minio-key",
+    "logo_url": "minio-key | file_id | https://... (url)",
     "primary_color": "#0ea5e9"
   }
 }
@@ -501,7 +501,7 @@ Respuestas
 **PUT `/institution`**
 ```json
 {
-  "logo_url": "minio-key",
+  "logo_url": "minio-key | file_id | https://... (url)",
   "primary_color": "#0ea5e9"
 }
 ```
@@ -509,11 +509,14 @@ Respuestas
 ```json
 {
   "data": {
-    "logo_url": "minio-key",
+    "logo_url": "minio-key | file_id | https://... (url)",
     "primary_color": "#0ea5e9"
   }
 }
 ```
+
+Notas:
+- `logo_url` puede ser `file_id` (recomendado) o `key` de MinIO. Para preview/descarga usar `/files/{id}/download`.
 
 ## Structure (ROLE_ADMIN)
 
