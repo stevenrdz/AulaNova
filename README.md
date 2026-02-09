@@ -102,6 +102,7 @@ Notas:
 - Tracking: comando `tracking:cleanup` para retención diaria.
 - OpenAPI: Auth/Users/Imports con schemas de request + 422 Validation.
 - OpenAPI: Structure con schemas de request + 422 Validation.
+- OpenAPI: Virtual con schemas de request + 422 Validation.
 
 ## Pendientes (especificos)
 - Backend/Files: endpoint de stream directo (opcional).
