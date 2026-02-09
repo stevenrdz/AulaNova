@@ -348,6 +348,66 @@ components:
         attachment_ids:
           type: array
           items: { type: integer }
+    QuizCreateRequest:
+      type: object
+      properties:
+        curso_virtual_id: { type: integer, minimum: 1 }
+        title: { type: string, maxLength: 200 }
+        description: { type: string }
+        start_at: { type: string, format: date-time }
+        end_at: { type: string, format: date-time }
+        time_limit_minutes: { type: integer, minimum: 1 }
+      required: [curso_virtual_id, title]
+    QuizUpdateRequest:
+      type: object
+      properties:
+        curso_virtual_id: { type: integer, minimum: 1 }
+        title: { type: string, maxLength: 200 }
+        description: { type: string }
+        start_at: { type: string, format: date-time }
+        end_at: { type: string, format: date-time }
+        time_limit_minutes: { type: integer, minimum: 1 }
+    QuestionCreateRequest:
+      type: object
+      properties:
+        quiz_id: { type: integer, minimum: 1 }
+        type: { type: string, enum: [SINGLE, TEXT] }
+        prompt: { type: string }
+        options:
+          type: array
+          items: { type: string }
+        correct_option: { type: string }
+      required: [quiz_id, type, prompt]
+    QuestionUpdateRequest:
+      type: object
+      properties:
+        quiz_id: { type: integer, minimum: 1 }
+        type: { type: string, enum: [SINGLE, TEXT] }
+        prompt: { type: string }
+        options:
+          type: array
+          items: { type: string }
+        correct_option: { type: string }
+    AttemptCreateRequest:
+      type: object
+      properties:
+        quiz_id: { type: integer, minimum: 1 }
+      required: [quiz_id]
+    AnswerCreateRequest:
+      type: object
+      properties:
+        attempt_id: { type: integer, minimum: 1 }
+        question_id: { type: integer, minimum: 1 }
+        answer_text: { type: string }
+        is_correct: { type: boolean }
+      required: [attempt_id, question_id]
+    AnswerUpdateRequest:
+      type: object
+      properties:
+        attempt_id: { type: integer, minimum: 1 }
+        question_id: { type: integer, minimum: 1 }
+        answer_text: { type: string }
+        is_correct: { type: boolean }
     ImportUsersRequest:
       type: object
       properties:
@@ -2312,16 +2372,7 @@ paths:
         required: true
         content:
           application/json:
-            schema:
-              type: object
-              properties:
-                curso_virtual_id: { type: integer }
-                title: { type: string, maxLength: 200 }
-                description: { type: string }
-                start_at: { type: string, format: date-time }
-                end_at: { type: string, format: date-time }
-                time_limit_minutes: { type: integer }
-              required: [curso_virtual_id, title]
+            schema: { $ref: '#/components/schemas/QuizCreateRequest' }
       responses:
         '201':
           description: Created
@@ -2331,6 +2382,11 @@ paths:
                 type: object
                 properties:
                   data: { $ref: '#/components/schemas/Quiz' }
+        '422':
+          description: Validation failed
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ValidationError' }
         '400':
           description: Bad request
           content:
@@ -2349,15 +2405,7 @@ paths:
         required: true
         content:
           application/json:
-            schema:
-              type: object
-              properties:
-                curso_virtual_id: { type: integer }
-                title: { type: string, maxLength: 200 }
-                description: { type: string }
-                start_at: { type: string, format: date-time }
-                end_at: { type: string, format: date-time }
-                time_limit_minutes: { type: integer }
+            schema: { $ref: '#/components/schemas/QuizUpdateRequest' }
       responses:
         '200':
           description: OK
@@ -2367,6 +2415,11 @@ paths:
                 type: object
                 properties:
                   data: { $ref: '#/components/schemas/Quiz' }
+        '422':
+          description: Validation failed
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ValidationError' }
         '400':
           description: Bad request
           content:
@@ -2437,17 +2490,7 @@ paths:
         required: true
         content:
           application/json:
-            schema:
-              type: object
-              properties:
-                quiz_id: { type: integer }
-                type: { type: string, enum: [SINGLE, TEXT] }
-                prompt: { type: string }
-                options:
-                  type: array
-                  items: { type: string }
-                correct_option: { type: string }
-              required: [quiz_id, type, prompt]
+            schema: { $ref: '#/components/schemas/QuestionCreateRequest' }
       responses:
         '201':
           description: Created
@@ -2457,6 +2500,11 @@ paths:
                 type: object
                 properties:
                   data: { $ref: '#/components/schemas/Question' }
+        '422':
+          description: Validation failed
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ValidationError' }
         '400':
           description: Bad request
           content:
@@ -2475,16 +2523,7 @@ paths:
         required: true
         content:
           application/json:
-            schema:
-              type: object
-              properties:
-                quiz_id: { type: integer }
-                type: { type: string, enum: [SINGLE, TEXT] }
-                prompt: { type: string }
-                options:
-                  type: array
-                  items: { type: string }
-                correct_option: { type: string }
+            schema: { $ref: '#/components/schemas/QuestionUpdateRequest' }
       responses:
         '200':
           description: OK
@@ -2494,6 +2533,11 @@ paths:
                 type: object
                 properties:
                   data: { $ref: '#/components/schemas/Question' }
+        '422':
+          description: Validation failed
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ValidationError' }
         '400':
           description: Bad request
           content:
@@ -2564,11 +2608,7 @@ paths:
         required: true
         content:
           application/json:
-            schema:
-              type: object
-              properties:
-                quiz_id: { type: integer }
-              required: [quiz_id]
+            schema: { $ref: '#/components/schemas/AttemptCreateRequest' }
       responses:
         '201':
           description: Created
@@ -2578,6 +2618,11 @@ paths:
                 type: object
                 properties:
                   data: { $ref: '#/components/schemas/Attempt' }
+        '422':
+          description: Validation failed
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ValidationError' }
         '400':
           description: Bad request
           content:
@@ -2674,14 +2719,7 @@ paths:
         required: true
         content:
           application/json:
-            schema:
-              type: object
-              properties:
-                attempt_id: { type: integer }
-                question_id: { type: integer }
-                answer_text: { type: string }
-                is_correct: { type: boolean }
-              required: [attempt_id, question_id]
+            schema: { $ref: '#/components/schemas/AnswerCreateRequest' }
       responses:
         '201':
           description: Created
@@ -2691,6 +2729,11 @@ paths:
                 type: object
                 properties:
                   data: { $ref: '#/components/schemas/Answer' }
+        '422':
+          description: Validation failed
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ValidationError' }
         '400':
           description: Bad request
           content:
@@ -2709,13 +2752,7 @@ paths:
         required: true
         content:
           application/json:
-            schema:
-              type: object
-              properties:
-                attempt_id: { type: integer }
-                question_id: { type: integer }
-                answer_text: { type: string }
-                is_correct: { type: boolean }
+            schema: { $ref: '#/components/schemas/AnswerUpdateRequest' }
       responses:
         '200':
           description: OK
@@ -2725,6 +2762,11 @@ paths:
                 type: object
                 properties:
                   data: { $ref: '#/components/schemas/Answer' }
+        '422':
+          description: Validation failed
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ValidationError' }
         '400':
           description: Bad request
           content:
