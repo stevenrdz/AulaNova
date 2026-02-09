@@ -98,7 +98,7 @@ WantedBy=multi-user.target
 - Docs: OpenAPI `InstitutionSettings` + validacion de `logo_url` (URL o key).
 - Tracking: resumen admin/teacher incluye `by_route` (accesos por ruta).
 - Files: endpoint `/files/{id}/stream` agregado.
-- Tests: phpunit OK (7 tests). ESLint frontend OK (sin errores ni warnings).
+- Tests: phpunit OK (10 tests). ESLint frontend OK (sin errores ni warnings).
 - Fixtures: recargadas con `doctrine:fixtures:load --no-interaction`.
 - Tests: phpunit OK tras recarga de fixtures.
 - Auth: responses incluyen `is_active` en el usuario.
