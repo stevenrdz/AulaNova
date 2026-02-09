@@ -43,7 +43,7 @@
 
 ## Pending - Backend (especifico)
 - Tracking: revisar retencion/limpieza de data diaria si aplica.
-- Messenger: correr worker `messenger:consume` en entorno/infra de producción.
+- Messenger: correr worker `messenger:consume` en entorno/infra de producción (systemd/supervisor/k8s).
 - Docs: OpenAPI detallado, DTOs/validaciones/serializer groups completos.
 - Tests: unit/integration + fixtures adicionales.
  

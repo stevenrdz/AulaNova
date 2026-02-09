@@ -41,6 +41,10 @@ Retry/failed:
 docker compose -f docker-compose.dev.yml exec -T lms-api php bin/console messenger:failed:show
 docker compose -f docker-compose.dev.yml exec -T lms-api php bin/console messenger:failed:retry
 ```
+Notas:
+- En producción, correr el worker como servicio (systemd/supervisor/k8s).
+- Ajustar `MESSENGER_TRANSPORT_DSN` y `MESSENGER_FAILURE_TRANSPORT_DSN` para ambiente prod.
+- Monitorear `messenger:failed:show` y alertas si hay reintentos fallidos.
 
 ## Observaciones de API (importante para pruebas)
 - Las rutas NO llevan prefijo `/api` (ej: `/auth/login`, `/users`, `/structure/*`, `/virtual/*`, `/assessments/*`, `/files/*`, `/imports/*`, `/tracking/*`).
@@ -54,6 +58,7 @@ docker compose -f docker-compose.dev.yml exec -T lms-api php bin/console messeng
   - Imports: `file_id` (después de `/files/complete`).
 - Uploads a MinIO: el `presign` devuelve host `minio`; la subida debe hacerse dentro del contenedor (`docker compose exec -T ... curl`).
 - Uploads desde browser: configurar `MINIO_PUBLIC_ENDPOINT` (ej: `http://localhost:9000`) para que el presign use host accesible.
+- Tracking: considerar job diario (cron) para consolidación/retención si el volumen de accesos crece.
 
 ## Ultima sesion (2026-02-09)
 - Swagger UI corregido (Twig/Asset) y accesible en `/api/docs`.
@@ -94,9 +99,9 @@ docker compose -f docker-compose.dev.yml exec -T lms-api php bin/console messeng
 
 ## Pendientes (especificos)
 - Backend: auth/users/structure/virtual/assessments/imports completado.
-- Backend/Tracking: consolidación diaria y reportes adicionales de accesos.
+- Backend/Tracking: consolidación diaria y reportes adicionales de accesos (cron/worker).
 - Backend/Files: endpoint de stream directo (opcional).
-- Backend/Messenger: correr worker `messenger:consume` en entorno/infra de producción.
+- Backend/Messenger: correr worker `messenger:consume` en entorno/infra de producción (systemd/supervisor/k8s).
 - Backend/Docs: OpenAPI detallado por módulo, DTOs/validaciones/serializer groups completos.
 - Backend/Tests: unit/integration + fixtures adicionales.
 - DevOps/Prod: dockerfiles prod, envs, migraciones, backups, despliegue en hosting del cliente.
