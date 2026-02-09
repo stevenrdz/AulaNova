@@ -1,15 +1,15 @@
-ï»¿# AGENTS.md - LMS Platform
+# AGENTS.md - LMS Platform
 
 ## Status (2026-02-09)
 - Swagger UI corregido (Twig/Asset) y accesible en `/api/docs`.
 - Tracking: resumen admin/teacher con filtros (query `from`, `to`, `course_id`, `user_id`).
-- Files: URL firmada GET vÃ­a `/files/{id}/download` + polÃ­tica MinIO privada.
+- Files: URL firmada GET vía `/files/{id}/download` + política MinIO privada.
 - Messenger: `failed` transport + retries configurados.
 - Frontend apuntando a API en `http://localhost:8000`.
 - Smoke tests OK: auth/users/structure/virtual/actividades/tracking.
 - Deprecaciones resueltas (Url requireTld, eraseCredentials).
-- Docs: validaciones detalladas en Tracking/Files (docs/api.md).
-- Docs: Auth/Users/Institution/Structure con validaciones (docs/api.md).
+- Docs: válidaciones detalladas en Tracking/Files (docs/api.md).
+- Docs: Auth/Users/Institution/Structure con válidaciones (docs/api.md).
 - Docs: OpenAPI YAML corregido (answers + sede-jornadas).
 - Docs: ejemplos reales agregados en users/teachers/admins y updates de virtual (api.md).
 - Docs: respuestas JSON estandarizadas para Structure (PUT/DELETE) en api.md.
@@ -27,7 +27,7 @@
 - Frontend student: cursos con tiempo de actividad y detalle (anuncios/actividades/quizzes).
 - Backend: lectura de cursos/anuncios/actividades/quizzes permitida para estudiantes (GET).
 - Seed: usuario `student@lms.local` creado para pruebas.
-- Frontend teacher: gestiÃ³n de evaluaciones (quizzes + preguntas) desde vista docente.
+- Frontend teacher: gestión de evaluaciones (quizzes + preguntas) desde vista docente.
 - Frontend student: flujo de quiz (iniciar, responder, finalizar, ver puntaje).
 - Backend: lectura de preguntas para estudiantes (sin `correct_option`).
 - Backend: entregas de actividades (submissions) con calificacion y feedback.
@@ -35,7 +35,7 @@
 - Files: presign ahora usa `MINIO_PUBLIC_ENDPOINT` para uploads desde navegador.
 - Frontend student: subida real de adjuntos en entregas (presign + PUT + complete).
 - Frontend teacher/student: descarga de adjuntos en entregas.
-- Frontend teacher: acciones masivas, filtros y analiticas en entregas.
+- Frontend teacher: acciones masivas, filtros y analíticas en entregas.
 - Admin: vista previa del logo con URL firmada cuando hay file_id disponible.
 - Sidebar: logo usa URL firmada si hay file_id en institution.
 - Frontend: Vite actualizado a ^7.3.1 y plugin-vue ^6.0.4 por audit fix.
@@ -53,38 +53,38 @@
 
 ## Pending - DevOps/Docs
 - Dockerfiles prod, variables finales, migraciones, backups.
-- Documentar polÃ­tica MinIO, SMTP y pasos de despliegue.
+- Documentar política MinIO, SMTP y pasos de despliegue.
 
 ## Notes
 - `logo_url` guarda el `key` de MinIO; la descarga debe ser con URL firmada (`/files/{id}/download`).
-- AutenticaciÃ³n: el login responde con `access_token` y `refresh_token` (snake_case).
+- Autenticación: el login responde con `access_token` y `refresh_token` (snake_case).
 - Las rutas NO llevan prefijo `/api` (ej: `/auth/login`, `/users`, `/structure/*`, `/virtual/*`, `/assessments/*`, `/files/*`, `/imports/*`, `/tracking/*`).
-- DTOs usan snake_case y nombres especÃ­ficos (ver README). En pruebas E2E fallaba por usar camelCase y campos antiguos.
+- DTOs usan snake_case y nombres específicos (ver README). En pruebas E2E fallaba por usar camelCase y campos antiguos.
 - Uploads a MinIO: el `presign` devuelve host `minio`, por lo que la subida debe hacerse dentro del contenedor (`docker compose exec -T ... curl`).
 - Entregas: requiere `MINIO_PUBLIC_ENDPOINT` para adjuntos desde browser.
 
-## Ultima sesion (2026-02-09)
+## Ultima Sesión (2026-02-09)
 - Swagger UI disponible en `/api/docs`.
 - Tracking admin/teacher summary agregado.
 - Files: descarga con URL firmada.
 - Messenger retries/failures configurados.
-- DocumentaciÃ³n actualizada en `docs/api.md`.
+- Documentación actualizada en `docs/api.md`.
 - OpenAPI YAML: rutas corregidas en `docs/openapi.yaml`.
-- Institution: validacion de `logo_url` ampliada (URL o key) y esquema OpenAPI agregado.
+- Institution: válidacion de `logo_url` ampliada (URL o key) y esquema OpenAPI agregado.
 - Fixtures: recargadas con `doctrine:fixtures:load --no-interaction`.
 - Tests: phpunit OK (5 tests).
 - Auth: responses incluyen `is_active` en el usuario.
 - Tracking: nuevos reportes por ruta/dia y comando `tracking:cleanup`.
-- OpenAPI: Auth/Users/Imports con schemas request + 422 Validation.
-- OpenAPI: Structure con schemas request + 422 Validation.
-- OpenAPI: Virtual con schemas request + 422 Validation.
-- OpenAPI: Assessments con schemas request + 422 Validation.
-- OpenAPI: Files + Tracking heartbeat con schemas request/response + 422 Validation.
+- OpenAPI: Auth/Users/Imports con schemas request + 422 válidation.
+- OpenAPI: Structure con schemas request + 422 válidation.
+- OpenAPI: Virtual con schemas request + 422 válidation.
+- OpenAPI: Assessments con schemas request + 422 válidation.
+- OpenAPI: Files + Tracking heartbeat con schemas request/response + 422 válidation.
 - Messenger: guia prod agregada (systemd ejemplo) en README.
 - Files: endpoint stream directo ya existe en `FileController` (`/files/{id}/stream`).
-- API docs: ejemplos aÃ±adidos para users/teachers/admins y PUTs de virtual.
+- API docs: ejemplos añadidos para users/teachers/admins y PUTs de virtual.
 - API docs: estructura (Structure) reescrita y respuestas unificadas.
-- OpenAPI: ejemplos aÃ±adidos en schemas principales.
+- OpenAPI: ejemplos añadidos en schemas principales.
 - Tracking: agregado resumen por ruta (`by_route`) y tabla diaria dedicada.
 - Files: endpoint `/files/{id}/stream` agregado.
 - Tests: phpunit OK (4 tests).
@@ -108,3 +108,4 @@
 - admin@lms.local / Admin123!
 - teacher@lms.local / Teacher123!
 - student@lms.local / Student123!
+

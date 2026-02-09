@@ -182,7 +182,7 @@ class ImportUsersMessageHandler
     private function validateRow(string $email, string $firstName, string $lastName, string $role): ?string
     {
         if ($email === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            return 'Email inv?lido.';
+            return 'Email inválido.';
         }
         if ($firstName === '') {
             return 'first_name es requerido.';
@@ -191,7 +191,7 @@ class ImportUsersMessageHandler
             return 'last_name es requerido.';
         }
         if (!in_array($role, ['ROLE_STUDENT', 'ROLE_TEACHER', 'ROLE_ADMIN'], true)) {
-            return 'Rol inv?lido.';
+            return 'Rol inválido.';
         }
 
         return null;

@@ -24,7 +24,7 @@ class AuthService
         $user = $this->userRepository->findActiveByEmail($email);
 
         if (!$user || !$this->passwordHasher->isPasswordValid($user, $password)) {
-            throw new \RuntimeException('Credenciales inv?lidas.');
+            throw new \RuntimeException('Credenciales inválidas.');
         }
 
         return $this->buildTokens($user);
@@ -59,7 +59,7 @@ class AuthService
     public function changePassword(User $user, string $currentPassword, string $newPassword): void
     {
         if (!$this->passwordHasher->isPasswordValid($user, $currentPassword)) {
-            throw new \RuntimeException('Contrase?a actual inv?lida.');
+            throw new \RuntimeException('Contraseña actual inválida.');
         }
 
         if ($currentPassword === $newPassword) {

@@ -11,9 +11,9 @@ Se usa JWT con esquema Bearer. El login devuelve `access_token` y `refresh_token
 **Errores comunes**
 ```json
 {
-  "message": "Validation failed",
+  "message": "válidation failed",
   "errors": {
-    "campo": ["mensaje de validacion"]
+    "campo": ["mensaje de válidacion"]
   }
 }
 ```
@@ -169,9 +169,9 @@ ImportBatch
 ```
 ```json
 {
-  "message": "Validation failed",
+  "message": "válidation failed",
   "errors": {
-    "campo": ["mensaje de validaciÃ³n"]
+    "campo": ["mensaje de válidaciÃ³n"]
   }
 }
 ```
@@ -195,7 +195,7 @@ ImportBatch
   "password": "Admin123!"
 }
 ```
-Validaciones:
+válidaciones:
 - `email` requerido y formato email
 - `password` requerido
 Respuestas
@@ -215,12 +215,12 @@ Respuestas
 ```
 ```json
 {
-  "message": "Validation failed",
-  "errors": { "email": ["Email invalido"] }
+  "message": "válidation failed",
+  "errors": { "email": ["Email inválido"] }
 }
 ```
 ```json
-{ "message": "Credenciales invalidas." }
+{ "message": "Credenciales inválidas." }
 ```
 ```json
 { "message": "Demasiados intentos. Intenta mas tarde." }
@@ -230,7 +230,7 @@ Respuestas
 ```json
 { "refresh_token": "token" }
 ```
-Validaciones:
+válidaciones:
 - `refresh_token` requerido
 Respuestas
 ```json
@@ -249,30 +249,30 @@ Respuestas
 ```
 ```json
 {
-  "message": "Validation failed",
+  "message": "válidation failed",
   "errors": { "refresh_token": ["Requerido"] }
 }
 ```
 ```json
-{ "message": "Refresh token invalido o expirado." }
+{ "message": "Refresh token inválido o expirado." }
 ```
 ```json
-{ "message": "Refresh token reutilizado. Sesion invalidada." }
+{ "message": "Refresh token reutilizado. Sesión inválidada." }
 ```
 
 **POST `/auth/logout`**
 ```json
 { "refresh_token": "token" }
 ```
-Validaciones:
+válidaciones:
 - `refresh_token` requerido
 Respuestas
 ```json
-{ "message": "Sesion finalizada" }
+{ "message": "Sesión finalizada" }
 ```
 ```json
 {
-  "message": "Validation failed",
+  "message": "válidation failed",
   "errors": { "refresh_token": ["Requerido"] }
 }
 ```
@@ -284,34 +284,34 @@ Respuestas
   "new_password": "New123!"
 }
 ```
-Validaciones:
+válidaciones:
 - `current_password` requerido
-- `new_password` requerido, minimo 8
+- `new_password` requerido, mínimo 8
 Respuestas
 ```json
-{ "message": "Contrasena actualizada" }
+{ "message": "Contraseña actualizada" }
 ```
 ```json
 {
-  "message": "Validation failed",
-  "errors": { "new_password": ["Minimo 8 caracteres"] }
+  "message": "válidation failed",
+  "errors": { "new_password": ["mínimo 8 caracteres"] }
 }
 ```
 ```json
 { "message": "Unauthorized" }
 ```
 ```json
-{ "message": "Contrasena actual invalida." }
+{ "message": "Contraseña actual inválida." }
 ```
 ```json
-{ "message": "La nueva contrasena no puede ser igual a la actual." }
+{ "message": "La nueva Contraseña no puede ser igual a la actual." }
 ```
 
 **POST `/auth/forgot-password`**
 ```json
 { "email": "user@lms.local" }
 ```
-Validaciones:
+válidaciones:
 - `email` requerido y formato email
 Respuestas
 ```json
@@ -319,8 +319,8 @@ Respuestas
 ```
 ```json
 {
-  "message": "Validation failed",
-  "errors": { "email": ["Email invalido"] }
+  "message": "válidation failed",
+  "errors": { "email": ["Email inválido"] }
 }
 ```
 ```json
@@ -335,22 +335,22 @@ Respuestas
   "new_password": "New123!"
 }
 ```
-Validaciones:
+válidaciones:
 - `email` requerido y formato email
 - `otp` requerido (6 digitos)
-- `new_password` requerido, minimo 8
+- `new_password` requerido, mínimo 8
 Respuestas
 ```json
-{ "message": "Contrasena actualizada" }
+{ "message": "Contraseña actualizada" }
 ```
 ```json
 {
-  "message": "Validation failed",
+  "message": "válidation failed",
   "errors": { "otp": ["Requerido"] }
 }
 ```
 ```json
-{ "message": "OTP invalido o expirado." }
+{ "message": "OTP inválido o expirado." }
 ```
 ## Users (ROLE_ADMIN)
 
@@ -425,9 +425,9 @@ Respuestas
   "role": "ROLE_TEACHER"
 }
 ```
-Validaciones:
+válidaciones:
 - `email` requerido y formato email
-- `password` requerido, minimo 8
+- `password` requerido, mínimo 8
 - `first_name` requerido
 - `last_name` requerido
 - `role` opcional (`ROLE_ADMIN`, `ROLE_TEACHER`, `ROLE_STUDENT`)
@@ -458,9 +458,9 @@ Respuestas
   "role": "ROLE_TEACHER"
 }
 ```
-Validaciones:
+válidaciones:
 - `email` si se envia, formato email
-- `password` si se envia, minimo 8
+- `password` si se envia, mínimo 8
 - `role` si se envia (`ROLE_ADMIN`, `ROLE_TEACHER`, `ROLE_STUDENT`)
 Respuestas
 ```json
@@ -560,7 +560,7 @@ Notas:
 
 ## Structure (ROLE_ADMIN)
 
-Validaciones (DTOs):
+válidaciones (DTOs):
 - SedeJornada: name requerido (max 120), is_active opcional (bool)
 - Nivel: name requerido (max 120), is_active opcional (bool)
 - Periodo: name requerido (max 120), start_date/end_date formato YYYY-MM-DD
@@ -601,7 +601,7 @@ Respuestas de error
   "file_id": 10
 }
 ```
-Validaciones:
+válidaciones:
 - `content` o `file_id` requerido (al menos uno)
 - `file_id` si viene debe existir
 - respeta `due_at` (si la actividad ya vencio, devuelve 400)
@@ -707,8 +707,8 @@ Respuestas de creacion/actualizacion/lectura
 Respuestas de error de formato de fecha
 ```json
 {
-  "message": "Validation failed",
-  "errors": { "start_date": ["Formato invalido. Usa YYYY-MM-DD."] }
+  "message": "válidation failed",
+  "errors": { "start_date": ["Formato inválido. Usa YYYY-MM-DD."] }
 }
 ```
 **DELETE `/structure/periodos/{id}`**  
@@ -878,7 +878,7 @@ Notas:
 ```json
 { "curso_id": 1, "description": "Desc" }
 ```
-Validaciones:
+válidaciones:
 - `curso_id` requerido y positivo
 - `description` opcional (max 2000)
 Respuestas
@@ -896,7 +896,7 @@ Respuestas
 { "message": "Curso no encontrado." }
 ```
 **PUT `/virtual/cursos/{id}`**
-Validaciones:
+válidaciones:
 - `curso_id` si se envia, positivo
 - `description` opcional (max 2000)
 Respuestas de creacion/actualizacion/lectura
@@ -942,7 +942,7 @@ Query: `page`, `limit`, `q`, `curso_virtual_id`
 ```json
 { "curso_virtual_id": 1, "title": "Bienvenida", "content": "Hola" }
 ```
-Validaciones:
+válidaciones:
 - `curso_virtual_id` requerido y positivo
 - `title` requerido (max 200)
 - `content` requerido
@@ -964,7 +964,7 @@ Respuestas de creacion/actualizacion/lectura
 { "message": "Curso virtual no encontrado." }
 ```
 **PUT `/virtual/anuncios/{id}`**
-Validaciones:
+válidaciones:
 - `curso_virtual_id` si se envia, positivo
 - `title` si se envia, max 200
 Respuestas de creacion/actualizacion/lectura
@@ -1029,7 +1029,7 @@ Query: `page`, `limit`, `q`, `curso_virtual_id`, `type`
   "attachment_ids": [10]
 }
 ```
-Validaciones:
+válidaciones:
 - `curso_virtual_id` requerido y positivo
 - `type` requerido (`TEXT`, `FILE`, `VIDEO`, `TASK`)
 - `title` requerido (max 200)
@@ -1088,8 +1088,8 @@ Respuestas de error especificas
 ```
 ```json
 {
-  "message": "Validation failed",
-  "errors": { "due_at": ["Formato invalido. Usa una fecha/hora valida."] }
+  "message": "válidation failed",
+  "errors": { "due_at": ["Formato inválido. Usa una fecha/hora válida."] }
 }
 ```
 ```json
@@ -1126,7 +1126,7 @@ Query: `page`, `limit`, `q`, `curso_virtual_id`
   "time_limit_minutes": 30
 }
 ```
-Validaciones:
+válidaciones:
 - `curso_virtual_id` requerido y positivo
 - `title` requerido (max 200)
 - `start_at`/`end_at` opcional (datetime)
@@ -1142,8 +1142,8 @@ Respuestas de error
 ```
 ```json
 {
-  "message": "Validation failed",
-  "errors": { "start_at": ["Formato invalido. Usa una fecha/hora valida."] }
+  "message": "válidation failed",
+  "errors": { "start_at": ["Formato inválido. Usa una fecha/hora válida."] }
 }
 ```
 
@@ -1174,7 +1174,7 @@ Query: `page`, `limit`, `quiz_id`, `type`
   "correct_option": "4"
 }
 ```
-Validaciones:
+válidaciones:
 - `quiz_id` requerido y positivo
 - `type` requerido (`SINGLE`, `TEXT`)
 - `prompt` requerido
@@ -1184,7 +1184,7 @@ Respuestas de error
 { "message": "Quiz no encontrado." }
 ```
 ```json
-{ "message": "Opciones invalidas." }
+{ "message": "Opciones inválidas." }
 ```
 ```json
 { "message": "correct_option es requerido." }
@@ -1214,7 +1214,7 @@ Notas:
 ```json
 { "quiz_id": 1 }
 ```
-Validaciones:
+válidaciones:
 - `quiz_id` requerido y positivo
 Respuestas de error
 ```json
@@ -1275,7 +1275,7 @@ Notas:
 ```json
 { "attempt_id": 1, "question_id": 1, "answer_text": "4" }
 ```
-Validaciones:
+válidaciones:
 - `attempt_id` requerido y positivo
 - `question_id` requerido y positivo
 - `is_correct` solo docente/admin
@@ -1579,7 +1579,7 @@ Respuestas
 ```json
 { "file_id": 10 }
 ```
-Validaciones:
+válidaciones:
 - `file_id` requerido y positivo
 Notas:
 - `file_id` debe venir de `/files/complete`
@@ -1639,7 +1639,7 @@ Query: `page`, `limit`, `type`, `status`
     "result_file": { "id": 11, "key": "imports/..csv", "bucket": "lms", "original_name": "result.csv", "mime_type": "text/csv", "size": 1234 }
   },
   "errors": [
-    { "id": 1, "row_number": 3, "message": "Email invalido", "raw_data": "..." }
+    { "id": 1, "row_number": 3, "message": "Email inválido", "raw_data": "..." }
   ]
 }
 ```
@@ -1652,7 +1652,7 @@ Query: `page`, `limit`, `type`, `status`
 ```json
 { "route": "/virtual/cursos", "course_id": 1, "timestamp": 1738720000 }
 ```
-Validaciones:
+válidaciones:
 - `route` requerido
 - `timestamp` requerido (epoch en ms o s)
 - `course_id` opcional
@@ -1758,7 +1758,7 @@ Respuestas de error
 ```
 ```json
 {
-  "message": "Validation failed",
+  "message": "válidation failed",
   "errors": { "from": ["Formato invÃ¡lido. Usa una fecha vÃ¡lida."] }
 }
 ```
@@ -1800,7 +1800,7 @@ Los objetos se mantienen privados; la descarga debe hacerse con URL firmada vÃ­a
 ```json
 { "filename": "test.txt", "mime_type": "text/plain", "size": 5 }
 ```
-Validaciones:
+válidaciones:
 - `filename` requerido
 - `mime_type` requerido
 - `size` requerido (> 0)
@@ -1826,7 +1826,7 @@ Respuesta
   "size": 5
 }
 ```
-Validaciones:
+válidaciones:
 - `key` requerido
 - `bucket` requerido
 - `original_name` requerido
@@ -1885,5 +1885,6 @@ Notas:
 Query: `disposition` (`attachment`|`inline`), `filename`
 Notas:
 - Devuelve el archivo en binario (stream).
+
 
 

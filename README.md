@@ -1,4 +1,4 @@
-ï»¿# LMS Platform (Symfony + Vue 3)
+# LMS Platform (Symfony + Vue 3)
 
 Monorepo con dos proyectos separados: API en Symfony 7 y SPA en Vue 3 (DashUI Tailwind). Pensado para hosting del cliente y desarrollo local con Docker.
 
@@ -7,7 +7,7 @@ Monorepo con dos proyectos separados: API en Symfony 7 y SPA en Vue 3 (DashUI Ta
 - `lms-web/`: SPA Vue 3 (DashUI + Tailwind + Pinia + Router)
 - `devops/`: Docker Compose para DEV
 - `docs/`: Diagramas, decisiones y OpenAPI
-  - `docs/api.md`: DocumentaciÃ³n detallada de endpoints (espaÃ±ol)
+  - `docs/api.md`: Documentación detallada de endpoints (español)
   - `docs/openapi.yaml`: OpenAPI manual basado en el comportamiento actual
 
 ## Quickstart (DEV)
@@ -26,7 +26,7 @@ Servicios locales:
 - MailHog: http://localhost:8025
 - MinIO Console: http://localhost:9001
 
-Lee los README de `lms-api/` y `lms-web/` para pasos especÃ­ficos.
+Lee los README de `lms-api/` y `lms-web/` para pasos específicos.
 
 ## Worker (Messenger)
 Para procesar colas async:
@@ -42,7 +42,7 @@ docker compose -f docker-compose.dev.yml exec -T lms-api php bin/console messeng
 docker compose -f docker-compose.dev.yml exec -T lms-api php bin/console messenger:failed:retry
 ```
 Notas:
-- En producciÃ³n, correr el worker como servicio (systemd/supervisor/k8s).
+- En producción, correr el worker como servicio (systemd/supervisor/k8s).
 - Ajustar `MESSENGER_TRANSPORT_DSN` y `MESSENGER_FAILURE_TRANSPORT_DSN` para ambiente prod.
 - Monitorear `messenger:failed:show` y alertas si hay reintentos fallidos.
 Ejemplo (systemd):
@@ -64,24 +64,24 @@ WantedBy=multi-user.target
 ## Observaciones de API (importante para pruebas)
 - Las rutas NO llevan prefijo `/api` (ej: `/auth/login`, `/users`, `/structure/*`, `/virtual/*`, `/assessments/*`, `/files/*`, `/imports/*`, `/tracking/*`).
 - Login devuelve `access_token` y `refresh_token` (snake_case).
-- Los DTOs usan snake_case y nombres especÃ­ficos (ejemplos):
+- Los DTOs usan snake_case y nombres específicos (ejemplos):
   - Users: `first_name`, `last_name`, `role`.
   - Curso: `capacity`, `start_date`, `end_date`, `periodo_id`, `teacher_id`, `sede_jornada_id`, `carrera_id`, `asignatura_id`.
-  - Actividad: `due_at` (datetime vÃ¡lido), `file_id`, `attachment_ids`, `youtube_url`.
+  - Actividad: `due_at` (datetime válido), `file_id`, `attachment_ids`, `youtube_url`.
   - Quiz: `start_at`, `end_at`, `time_limit_minutes`.
   - Tracking: `route`, `course_id`, `timestamp`.
-  - Imports: `file_id` (despuÃ©s de `/files/complete`).
+  - Imports: `file_id` (después de `/files/complete`).
 - Uploads a MinIO: el `presign` devuelve host `minio`; la subida debe hacerse dentro del contenedor (`docker compose exec -T ... curl`).
 - Uploads desde browser: configurar `MINIO_PUBLIC_ENDPOINT` (ej: `http://localhost:9000`) para que el presign use host accesible.
-- Tracking: considerar job diario (cron) para consolidaciÃ³n/retenciÃ³n si el volumen de accesos crece.
+- Tracking: considerar job diario (cron) para consolidación/retención si el volumen de accesos crece.
   - Command: `php bin/console tracking:cleanup --days=180`.
 
-## Ultima sesion (2026-02-09)
+## Ultima Sesión (2026-02-09)
 - Swagger UI corregido (Twig/Asset) y accesible en `/api/docs`.
 - Tracking: resumen admin/teacher con filtros (query `from`, `to`, `course_id`, `user_id`).
-- Files: URL firmada GET vÃ­a `/files/{id}/download` + polÃ­tica MinIO privada.
-- Admin: validaciones y helper texts en Assessments (quizzes/preguntas/intentos/respuestas).
-- Frontend teacher: filtros, analiticas y acciones masivas en entregas.
+- Files: URL firmada GET vía `/files/{id}/download` + política MinIO privada.
+- Admin: válidaciones y helper texts en Assessments (quizzes/preguntas/intentos/respuestas).
+- Frontend teacher: filtros, analíticas y acciones masivas en entregas.
 - Admin: vista previa del logo con URL firmada cuando hay file_id disponible.
 - Sidebar: logo usa URL firmada si hay file_id en institution.
 - Frontend: dependencias actualizadas por `npm audit fix --force` (Vite ^7.3.1, plugin-vue ^6.0.4).
@@ -89,13 +89,13 @@ WantedBy=multi-user.target
 - Frontend apuntando a API en `http://localhost:8000`.
 - Smoke tests OK: auth/users/structure/virtual/actividades/tracking.
 - Deprecaciones resueltas (Url requireTld y eraseCredentials).
-- Docs: validaciones detalladas de Tracking y Files en docs/api.md.
-- Docs: Auth/Users/Institution/Structure con validaciones en docs/api.md.
+- Docs: válidaciones detalladas de Tracking y Files en docs/api.md.
+- Docs: Auth/Users/Institution/Structure con válidaciones en docs/api.md.
 - Docs: OpenAPI YAML corregido y sincronizado con rutas de answers y sede-jornadas.
 - Docs: ejemplos agregados para `/users/teachers`, `/users/admins`, PUT `/virtual/cursos/{id}` y PUT `/virtual/anuncios/{id}`.
 - Docs: se estandarizaron respuestas JSON en seccion Structure (PUT/DELETE) de `docs/api.md`.
 - Docs: OpenAPI `docs/openapi.yaml` con ejemplos completos en schemas principales.
-- Docs: OpenAPI `InstitutionSettings` + validacion de `logo_url` (URL o key).
+- Docs: OpenAPI `InstitutionSettings` + válidacion de `logo_url` (URL o key).
 - Tracking: resumen admin/teacher incluye `by_route` (accesos por ruta).
 - Files: endpoint `/files/{id}/stream` agregado.
 - Tests: phpunit OK (10 tests). ESLint frontend OK (sin errores ni warnings).
@@ -113,16 +113,16 @@ WantedBy=multi-user.target
 - Backend: GET de preguntas para estudiantes (sin `correct_option`).
 - Backend: entregas de actividades (submissions) con calificacion y feedback.
   - Frontend: entregas con adjuntos (presign + complete) y descarga (student/teacher).
-- Tracking: nuevos reportes por ruta/dÃ­a (`/tracking/admin/routes`, `/tracking/teacher/routes`).
-- Tracking: comando `tracking:cleanup` para retenciÃ³n diaria.
-- OpenAPI: Auth/Users/Imports con schemas de request + 422 Validation.
-- OpenAPI: Structure con schemas de request + 422 Validation.
-- OpenAPI: Virtual con schemas de request + 422 Validation.
-- OpenAPI: Assessments con schemas de request + 422 Validation.
-- OpenAPI: Files + Tracking heartbeat con schemas request/response + 422 Validation.
+- Tracking: nuevos reportes por ruta/día (`/tracking/admin/routes`, `/tracking/teacher/routes`).
+- Tracking: comando `tracking:cleanup` para retención diaria.
+- OpenAPI: Auth/Users/Imports con schemas de request + 422 válidation.
+- OpenAPI: Structure con schemas de request + 422 válidation.
+- OpenAPI: Virtual con schemas de request + 422 válidation.
+- OpenAPI: Assessments con schemas de request + 422 válidation.
+- OpenAPI: Files + Tracking heartbeat con schemas request/response + 422 válidation.
 
 ## Pendientes (especificos)
-- Backend/Messenger: correr worker `messenger:consume` en entorno/infra de producciÃ³n (systemd/supervisor/k8s).
+- Backend/Messenger: correr worker `messenger:consume` en entorno/infra de producción (systemd/supervisor/k8s).
 - Backend/Tests: unit/integration + fixtures adicionales.
 - DevOps/Prod: dockerfiles prod, envs, migraciones, backups, despliegue en hosting del cliente.
 - Docs: ADRs, diagrama general, flujo de archivos/MinIO y SMTP.
@@ -136,3 +136,4 @@ WantedBy=multi-user.target
 cd devops
 docker compose --env-file ../.env -f docker-compose.dev.yml exec -T lms-api php vendor/bin/phpunit
 ```
+

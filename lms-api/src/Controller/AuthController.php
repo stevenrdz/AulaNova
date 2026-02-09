@@ -48,7 +48,7 @@ class AuthController extends ApiController
 
         $limit = $this->loginLimiter->create(($request->getClientIp() ?? 'anon') . $dto->email)->consume(1);
         if (!$limit->isAccepted()) {
-            return $this->json(['message' => 'Demasiados intentos. Intenta m?s tarde.'], 429);
+            return $this->json(['message' => 'Demasiados intentos. Intenta más tarde.'], 429);
         }
 
         try {
@@ -104,7 +104,7 @@ class AuthController extends ApiController
         $this->refreshTokenService->revoke($dto->refresh_token);
         $this->auditLogService->log('logout', 'auth');
 
-        return $this->json(['message' => 'Sesi?n finalizada']);
+        return $this->json(['message' => 'Sesión finalizada']);
     }
 
     #[Route('/change-password', methods: ['POST'])]
@@ -132,7 +132,7 @@ class AuthController extends ApiController
 
         $this->auditLogService->log('change_password', 'auth');
 
-        return $this->json(['message' => 'Contrase?a actualizada']);
+        return $this->json(['message' => 'Contraseña actualizada']);
     }
 
     #[Route('/forgot-password', methods: ['POST'])]
@@ -148,7 +148,7 @@ class AuthController extends ApiController
 
         $limit = $this->otpLimiter->create(($request->getClientIp() ?? 'anon') . $dto->email)->consume(1);
         if (!$limit->isAccepted()) {
-            return $this->json(['message' => 'Demasiados intentos. Intenta m?s tarde.'], 429);
+            return $this->json(['message' => 'Demasiados intentos. Intenta más tarde.'], 429);
         }
 
         $user = $this->userRepository->findActiveByEmail($dto->email);
@@ -174,7 +174,7 @@ class AuthController extends ApiController
 
         $user = $this->userRepository->findActiveByEmail($dto->email);
         if (!$user) {
-            return $this->json(['message' => 'OTP inv?lido o expirado.'], 400);
+            return $this->json(['message' => 'OTP inválido o expirado.'], 400);
         }
 
         try {
@@ -185,7 +185,7 @@ class AuthController extends ApiController
 
         $this->auditLogService->log('reset_password', 'auth');
 
-        return $this->json(['message' => 'Contrase?a actualizada']);
+        return $this->json(['message' => 'Contraseña actualizada']);
     }
 
     private function mapUser($user): array

@@ -188,7 +188,7 @@ class PeriodoController extends ApiController
         return $this->json([
             'message' => 'Validation failed',
             'errors' => [
-                $field => ['Formato inv?lido. Usa YYYY-MM-DD.'],
+                $field => ['Formato inválido. Usa YYYY-MM-DD.'],
             ],
         ], 422);
     }

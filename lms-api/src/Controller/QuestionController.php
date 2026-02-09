@@ -96,7 +96,7 @@ class QuestionController extends ApiController
 
         if ($dto->type === 'SINGLE') {
             if (!is_array($dto->options) || count($dto->options) < 2) {
-                return $this->json(['message' => 'Opciones inv?lidas.'], 400);
+                return $this->json(['message' => 'Opciones inválidas.'], 400);
             }
             if ($dto->correct_option === null || $dto->correct_option === '') {
                 return $this->json(['message' => 'correct_option es requerido.'], 400);
@@ -156,7 +156,7 @@ class QuestionController extends ApiController
         if ($item->getType() === 'SINGLE') {
             if ($dto->options !== null) {
                 if (!is_array($dto->options) || count($dto->options) < 2) {
-                    return $this->json(['message' => 'Opciones inv?lidas.'], 400);
+                    return $this->json(['message' => 'Opciones inválidas.'], 400);
                 }
                 $item->setOptions($dto->options);
             }

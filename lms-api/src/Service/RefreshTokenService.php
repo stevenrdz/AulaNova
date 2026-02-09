@@ -38,17 +38,17 @@ class RefreshTokenService
         $existing = $this->refreshTokenRepository->findOneBy(['tokenHash' => $hash]);
 
         if (!$existing) {
-            throw new \RuntimeException('Refresh token inv?lido o expirado.');
+            throw new \RuntimeException('Refresh token inválido o expirado.');
         }
 
         if ($existing->getRevokedAt() !== null) {
             $this->refreshTokenRepository->revokeAllForUser($existing->getUser());
             $this->entityManager->flush();
-            throw new \RuntimeException('Refresh token reutilizado. Sesi?n invalidada.');
+            throw new \RuntimeException('Refresh token reutilizado. Sesión invalidada.');
         }
 
         if ($existing->getExpiresAt() <= new \DateTimeImmutable()) {
-            throw new \RuntimeException('Refresh token inv?lido o expirado.');
+            throw new \RuntimeException('Refresh token inválido o expirado.');
         }
 
         [$newRaw, $newHash, $newEntity] = $this->issue($existing->getUser());

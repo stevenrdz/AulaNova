@@ -48,7 +48,7 @@ class PasswordResetService
         $token = $this->passwordResetTokenRepository->findValidToken($user, $hash);
 
         if (!$token) {
-            throw new \RuntimeException('OTP inv?lido o expirado.');
+            throw new \RuntimeException('OTP inválido o expirado.');
         }
 
         $user->setPassword($this->passwordHasher->hashPassword($user, $newPassword));

@@ -1,6 +1,6 @@
 <template>
   <PageHeader
-    title="Configuracion institucional"
+    title="Configuración institucional"
     subtitle="Logo y color principal."
   />
 
@@ -231,7 +231,7 @@ const saveSettings = async () => {
       logo_url: form.logo_url || null,
       primary_color: form.primary_color || null
     })
-    message.value = 'Configuracion guardada.'
+    message.value = 'Configuración guardada.'
     applyColor(form.primary_color)
   } catch (err: any) {
     error.value = err?.response?.data?.message || 'No se pudo guardar.'
@@ -247,3 +247,4 @@ watch(
 
 onMounted(loadSettings)
 </script>
+

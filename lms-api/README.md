@@ -46,5 +46,5 @@ php bin/console lexik:jwt:generate-keypair
 ## OpenAPI
 Disponible en `http://localhost:8000/api/docs`.
 
-## Configuracion
+## Configuración
 Ver `.env.example`.

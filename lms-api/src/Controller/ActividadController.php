@@ -316,7 +316,7 @@ class ActividadController extends ApiController
         return $this->json([
             'message' => 'Validation failed',
             'errors' => [
-                $field => ['Formato inv?lido. Usa una fecha/hora v?lida.'],
+                $field => ['Formato inválido. Usa una fecha/hora válida.'],
             ],
         ], 422);
     }
