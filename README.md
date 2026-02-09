@@ -100,9 +100,9 @@ Notas:
   - Frontend: entregas con adjuntos (presign + complete) y descarga (student/teacher).
 - Tracking: nuevos reportes por ruta/día (`/tracking/admin/routes`, `/tracking/teacher/routes`).
 - Tracking: comando `tracking:cleanup` para retención diaria.
+- OpenAPI: Auth/Users/Imports con schemas de request + 422 Validation.
 
 ## Pendientes (especificos)
-- Backend: auth/users/structure/virtual/assessments/imports completado.
 - Backend/Files: endpoint de stream directo (opcional).
 - Backend/Messenger: correr worker `messenger:consume` en entorno/infra de producción (systemd/supervisor/k8s).
 - Backend/Docs: OpenAPI detallado por módulo, DTOs/validaciones/serializer groups completos.

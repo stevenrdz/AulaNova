@@ -1,11 +1,11 @@
-﻿# API LMS (Symfony)
+# API LMS (Symfony)
 
-DocumentaciÃ³n en espaÃ±ol basada en el comportamiento actual de la API. Todas las rutas son sin prefijo `/api`.
+Documentación en español basada en el comportamiento actual de la API. Todas las rutas son sin prefijo `/api`.
 
 **Base URL (DEV)**  
 `http://localhost:8000`
 
-**AutenticaciÃ³n**  
+**Autenticación**  
 Se usa JWT con esquema Bearer. El login devuelve `access_token` y `refresh_token`.
 
 **Errores comunes**
@@ -171,7 +171,7 @@ ImportBatch
 {
   "message": "Validation failed",
   "errors": {
-    "campo": ["mensaje de validaciÃ³n"]
+    "campo": ["mensaje de validación"]
   }
 }
 ```
@@ -214,6 +214,12 @@ Respuestas
 }
 ```
 ```json
+{
+  "message": "Validation failed",
+  "errors": { "email": ["Email invalido"] }
+}
+```
+```json
 { "message": "Credenciales invalidas." }
 ```
 ```json
@@ -242,6 +248,12 @@ Respuestas
 }
 ```
 ```json
+{
+  "message": "Validation failed",
+  "errors": { "refresh_token": ["Requerido"] }
+}
+```
+```json
 { "message": "Refresh token invalido o expirado." }
 ```
 ```json
@@ -258,6 +270,12 @@ Respuestas
 ```json
 { "message": "Sesion finalizada" }
 ```
+```json
+{
+  "message": "Validation failed",
+  "errors": { "refresh_token": ["Requerido"] }
+}
+```
 
 **POST `/auth/change-password`**
 ```json
@@ -272,6 +290,12 @@ Validaciones:
 Respuestas
 ```json
 { "message": "Contrasena actualizada" }
+```
+```json
+{
+  "message": "Validation failed",
+  "errors": { "new_password": ["Minimo 8 caracteres"] }
+}
 ```
 ```json
 { "message": "Unauthorized" }
@@ -294,6 +318,12 @@ Respuestas
 { "message": "Si el correo existe, enviaremos un OTP." }
 ```
 ```json
+{
+  "message": "Validation failed",
+  "errors": { "email": ["Email invalido"] }
+}
+```
+```json
 { "message": "Demasiados intentos. Intenta mas tarde." }
 ```
 
@@ -314,8 +344,15 @@ Respuestas
 { "message": "Contrasena actualizada" }
 ```
 ```json
+{
+  "message": "Validation failed",
+  "errors": { "otp": ["Requerido"] }
+}
+```
+```json
 { "message": "OTP invalido o expirado." }
-```\r\n## Users (ROLE_ADMIN)
+```
+## Users (ROLE_ADMIN)
 
 **GET `/users`**  
 Query: `page`, `limit`, `q`, `is_active`, `role`
@@ -449,7 +486,8 @@ Respuestas
 ```
 ```json
 { "message": "Usuario no encontrado." }
-```\r\n
+```
+
 
 **GET `/users`**  
 Query: `page`, `limit`, `q`, `is_active`, `role`
@@ -1056,7 +1094,8 @@ Respuestas de error especificas
 ```
 ```json
 { "message": "No se puede eliminar el registro." }
-```\r\n## Assessments
+```
+## Assessments
 
 **GET `/assessments/quizzes`**  
 Query: `page`, `limit`, `q`, `curso_virtual_id`
@@ -1255,7 +1294,8 @@ Respuestas de error
 ```
 ```json
 { "message": "Unauthorized" }
-```\r\n
+```
+
 
 **GET `/assessments/quizzes`**  
 Query: `page`, `limit`, `q`, `curso_virtual_id`
@@ -1286,7 +1326,7 @@ Query: `page`, `limit`, `q`, `curso_virtual_id`
   "time_limit_minutes": 30
 }
 ```
-Respuestas de creaciÃ³n/actualizaciÃ³n/lectura
+Respuestas de creación/actualización/lectura
 ```json
 {
   "data": {
@@ -1300,7 +1340,7 @@ Respuestas de creaciÃ³n/actualizaciÃ³n/lectura
   }
 }
 ```
-Respuestas de error especÃ­ficas
+Respuestas de error específicas
 ```json
 { "message": "Curso virtual no encontrado." }
 ```
@@ -1335,7 +1375,7 @@ Query: `page`, `limit`, `quiz_id`, `type`
   "correct_option": "4"
 }
 ```
-Respuestas de creaciÃ³n/actualizaciÃ³n/lectura
+Respuestas de creación/actualización/lectura
 ```json
 {
   "data": {
@@ -1348,12 +1388,12 @@ Respuestas de creaciÃ³n/actualizaciÃ³n/lectura
   }
 }
 ```
-Respuestas de error especÃ­ficas
+Respuestas de error específicas
 ```json
 { "message": "Quiz no encontrado." }
 ```
 ```json
-{ "message": "Opciones invÃ¡lidas." }
+{ "message": "Opciones inválidas." }
 ```
 ```json
 { "message": "correct_option es requerido." }
@@ -1393,15 +1433,15 @@ Respuestas
   }
 }
 ```
-Respuestas de error especÃ­ficas
+Respuestas de error específicas
 ```json
 { "message": "Quiz no encontrado." }
 ```
 ```json
-{ "message": "El quiz aÃºn no estÃ¡ disponible." }
+{ "message": "El quiz aún no está disponible." }
 ```
 ```json
-{ "message": "El quiz ya no estÃ¡ disponible." }
+{ "message": "El quiz ya no está disponible." }
 ```
 
 **POST `/assessments/attempts/{id}/finish`** (ROLE_STUDENT)
@@ -1454,7 +1494,7 @@ Respuestas
   }
 }
 ```
-Respuestas de error especÃ­ficas
+Respuestas de error específicas
 ```json
 { "message": "Intento no encontrado." }
 ```
@@ -1605,7 +1645,8 @@ Query: `page`, `limit`, `type`, `status`
 ```
 ```json
 { "message": "Batch no encontrado." }
-```\r\n## Tracking (ROLE_STUDENT)
+```
+## Tracking (ROLE_STUDENT)
 
 **POST `/tracking/heartbeat`**
 ```json
@@ -1669,7 +1710,7 @@ Notas:
 **GET `/tracking/admin/routes`** (ROLE_ADMIN)  
 Query: `from`, `to`, `course_id`, `user_id`, `route`
 Notas:
-- Reporte detallado por ruta + día
+- Reporte detallado por ruta + d�a
 ```json
 {
   "data": {
@@ -1718,14 +1759,14 @@ Respuestas de error
 ```json
 {
   "message": "Validation failed",
-  "errors": { "from": ["Formato invÃ¡lido. Usa una fecha vÃ¡lida."] }
+  "errors": { "from": ["Formato inválido. Usa una fecha válida."] }
 }
 ```
 
 **GET `/tracking/teacher/routes`** (ROLE_TEACHER)  
 Query: `from`, `to`, `course_id`, `user_id`, `route`
 Notas:
-- Reporte detallado por ruta + día (solo cursos del docente)
+- Reporte detallado por ruta + d�a (solo cursos del docente)
 ```json
 {
   "data": {
@@ -1752,8 +1793,8 @@ Notas:
 
 ## Files
 
-**PolÃ­tica MinIO (DEV)**  
-Los objetos se mantienen privados; la descarga debe hacerse con URL firmada vÃ­a `/files/{id}/download`.
+**Política MinIO (DEV)**  
+Los objetos se mantienen privados; la descarga debe hacerse con URL firmada vía `/files/{id}/download`.
 
 **POST `/files/presign`**
 ```json
@@ -1844,3 +1885,5 @@ Notas:
 Query: `disposition` (`attachment`|`inline`), `filename`
 Notas:
 - Devuelve el archivo en binario (stream).
+
+

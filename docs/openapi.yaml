@@ -162,6 +162,62 @@ components:
           last_name: LMS
           roles: [ROLE_ADMIN]
           is_active: true
+    AuthLoginRequest:
+      type: object
+      properties:
+        email: { type: string, format: email }
+        password: { type: string }
+      required: [email, password]
+    AuthRefreshRequest:
+      type: object
+      properties:
+        refresh_token: { type: string }
+      required: [refresh_token]
+    AuthLogoutRequest:
+      type: object
+      properties:
+        refresh_token: { type: string }
+      required: [refresh_token]
+    AuthChangePasswordRequest:
+      type: object
+      properties:
+        current_password: { type: string }
+        new_password: { type: string, minLength: 8 }
+      required: [current_password, new_password]
+    AuthForgotPasswordRequest:
+      type: object
+      properties:
+        email: { type: string, format: email }
+      required: [email]
+    AuthResetPasswordRequest:
+      type: object
+      properties:
+        email: { type: string, format: email }
+        otp: { type: string, minLength: 6, maxLength: 6 }
+        new_password: { type: string, minLength: 8 }
+      required: [email, otp, new_password]
+    UserCreateRequest:
+      type: object
+      properties:
+        email: { type: string, format: email }
+        password: { type: string, minLength: 8 }
+        first_name: { type: string }
+        last_name: { type: string }
+        role: { type: string, enum: [ROLE_ADMIN, ROLE_TEACHER, ROLE_STUDENT] }
+      required: [email, password, first_name, last_name]
+    UserUpdateRequest:
+      type: object
+      properties:
+        email: { type: string, format: email }
+        password: { type: string, minLength: 8 }
+        first_name: { type: string }
+        last_name: { type: string }
+        role: { type: string, enum: [ROLE_ADMIN, ROLE_TEACHER, ROLE_STUDENT] }
+    ImportUsersRequest:
+      type: object
+      properties:
+        file_id: { type: integer }
+      required: [file_id]
     SedeJornada:
       type: object
       properties:
@@ -614,12 +670,7 @@ paths:
         required: true
         content:
           application/json:
-            schema:
-              type: object
-              properties:
-                email: { type: string, format: email }
-                password: { type: string }
-              required: [email, password]
+            schema: { $ref: '#/components/schemas/AuthLoginRequest' }
       responses:
         '200':
           description: OK
@@ -627,6 +678,11 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/AuthResponse'
+        '422':
+          description: Validation failed
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ValidationError' }
         '401':
           description: Unauthorized
           content:
@@ -644,17 +700,18 @@ paths:
         required: true
         content:
           application/json:
-            schema:
-              type: object
-              properties:
-                refresh_token: { type: string }
-              required: [refresh_token]
+            schema: { $ref: '#/components/schemas/AuthRefreshRequest' }
       responses:
         '200':
           description: OK
           content:
             application/json:
               schema: { $ref: '#/components/schemas/AuthResponse' }
+        '422':
+          description: Validation failed
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ValidationError' }
         '401':
           description: Unauthorized
           content:
@@ -667,17 +724,18 @@ paths:
         required: true
         content:
           application/json:
-            schema:
-              type: object
-              properties:
-                refresh_token: { type: string }
-              required: [refresh_token]
+            schema: { $ref: '#/components/schemas/AuthLogoutRequest' }
       responses:
         '200':
           description: OK
           content:
             application/json:
               schema: { $ref: '#/components/schemas/ErrorMessage' }
+        '422':
+          description: Validation failed
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ValidationError' }
   /auth/change-password:
     post:
       tags: [Auth]
@@ -686,18 +744,18 @@ paths:
         required: true
         content:
           application/json:
-            schema:
-              type: object
-              properties:
-                current_password: { type: string }
-                new_password: { type: string, minLength: 8 }
-              required: [current_password, new_password]
+            schema: { $ref: '#/components/schemas/AuthChangePasswordRequest' }
       responses:
         '200':
           description: OK
           content:
             application/json:
               schema: { $ref: '#/components/schemas/ErrorMessage' }
+        '422':
+          description: Validation failed
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ValidationError' }
         '401':
           description: Unauthorized
           content:
@@ -710,17 +768,18 @@ paths:
         required: true
         content:
           application/json:
-            schema:
-              type: object
-              properties:
-                email: { type: string, format: email }
-              required: [email]
+            schema: { $ref: '#/components/schemas/AuthForgotPasswordRequest' }
       responses:
         '200':
           description: OK
           content:
             application/json:
               schema: { $ref: '#/components/schemas/ErrorMessage' }
+        '422':
+          description: Validation failed
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ValidationError' }
         '429':
           description: Rate limited
           content:
@@ -733,19 +792,18 @@ paths:
         required: true
         content:
           application/json:
-            schema:
-              type: object
-              properties:
-                email: { type: string, format: email }
-                otp: { type: string, minLength: 6, maxLength: 6 }
-                new_password: { type: string, minLength: 8 }
-              required: [email, otp, new_password]
+            schema: { $ref: '#/components/schemas/AuthResetPasswordRequest' }
       responses:
         '200':
           description: OK
           content:
             application/json:
               schema: { $ref: '#/components/schemas/ErrorMessage' }
+        '422':
+          description: Validation failed
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ValidationError' }
   /users:
     get:
       tags: [Users]
@@ -785,15 +843,7 @@ paths:
         required: true
         content:
           application/json:
-            schema:
-              type: object
-              properties:
-                email: { type: string, format: email }
-                password: { type: string, minLength: 8 }
-                first_name: { type: string }
-                last_name: { type: string }
-                role: { type: string, enum: [ROLE_ADMIN, ROLE_TEACHER, ROLE_STUDENT] }
-              required: [email, password, first_name, last_name]
+            schema: { $ref: '#/components/schemas/UserCreateRequest' }
       responses:
         '201':
           description: Created
@@ -803,6 +853,11 @@ paths:
                 type: object
                 properties:
                   data: { $ref: '#/components/schemas/User' }
+        '422':
+          description: Validation failed
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ValidationError' }
         '409':
           description: Conflict
           content:
@@ -853,14 +908,7 @@ paths:
         required: true
         content:
           application/json:
-            schema:
-              type: object
-              properties:
-                email: { type: string, format: email }
-                password: { type: string, minLength: 8 }
-                first_name: { type: string }
-                last_name: { type: string }
-                role: { type: string, enum: [ROLE_ADMIN, ROLE_TEACHER, ROLE_STUDENT] }
+            schema: { $ref: '#/components/schemas/UserUpdateRequest' }
       responses:
         '200':
           description: OK
@@ -870,6 +918,11 @@ paths:
                 type: object
                 properties:
                   data: { $ref: '#/components/schemas/User' }
+        '422':
+          description: Validation failed
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ValidationError' }
         '404':
           description: Not found
           content:
@@ -2738,11 +2791,7 @@ paths:
         required: true
         content:
           application/json:
-            schema:
-              type: object
-              properties:
-                file_id: { type: integer }
-              required: [file_id]
+            schema: { $ref: '#/components/schemas/ImportUsersRequest' }
       responses:
         '201':
           description: Created
@@ -2752,6 +2801,11 @@ paths:
                 type: object
                 properties:
                   data: { $ref: '#/components/schemas/ImportBatch' }
+        '422':
+          description: Validation failed
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ValidationError' }
         '400':
           description: Bad request
           content:
