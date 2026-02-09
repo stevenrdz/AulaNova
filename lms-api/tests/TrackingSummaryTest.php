@@ -6,6 +6,7 @@ use App\Entity\Curso;
 use App\Entity\Role;
 use App\Entity\TimeTrackingDaily;
 use App\Entity\User;
+use App\Entity\TimeTrackingRouteDaily;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
@@ -93,6 +94,40 @@ class TrackingSummaryTest extends WebTestCase
         $this->assertSame(120, $studentPayload['data']['total_seconds']);
     }
 
+    public function testTrackingRouteReports(): void
+    {
+        $adminToken = $this->loginAndGetToken($this->client, $this->getUserEmail('admin'), $this->getUserPassword('admin'));
+        $teacherToken = $this->loginAndGetToken($this->client, $this->getUserEmail('teacher'), $this->getUserPassword('teacher'));
+
+        $this->client->request('GET', sprintf('/tracking/admin/routes?course_id=%d', $this->courseId), [], [], [
+            'HTTP_Authorization' => 'Bearer ' . $adminToken,
+        ]);
+        $this->assertResponseIsSuccessful();
+        $adminPayload = json_decode($this->client->getResponse()->getContent(), true);
+        $this->assertSame(120, $adminPayload['data']['total_seconds']);
+        $this->assertSame('/virtual/cursos', $adminPayload['data']['by_route'][0]['route']);
+        $this->assertCount(2, $adminPayload['data']['by_route'][0]['by_day']);
+
+        $this->client->request('GET', sprintf('/tracking/teacher/routes?course_id=%d&route=/virtual/cursos', $this->courseId), [], [], [
+            'HTTP_Authorization' => 'Bearer ' . $teacherToken,
+        ]);
+        $this->assertResponseIsSuccessful();
+        $teacherPayload = json_decode($this->client->getResponse()->getContent(), true);
+        $this->assertSame(120, $teacherPayload['data']['total_seconds']);
+        $this->assertSame('/virtual/cursos', $teacherPayload['data']['by_route'][0]['route']);
+    }
+
+    public function testAdminRoutesValidatesDates(): void
+    {
+        $adminToken = $this->loginAndGetToken($this->client, $this->getUserEmail('admin'), $this->getUserPassword('admin'));
+
+        $this->client->request('GET', '/tracking/admin/routes?from=invalid-date', [], [], [
+            'HTTP_Authorization' => 'Bearer ' . $adminToken,
+        ]);
+
+        $this->assertResponseStatusCodeSame(422);
+    }
+
     public function testAdminSummaryValidatesDates(): void
     {
         $adminToken = $this->loginAndGetToken($this->client, $this->getUserEmail('admin'), $this->getUserPassword('admin'));
@@ -134,10 +169,22 @@ class TrackingSummaryTest extends WebTestCase
         $t2->setCurso($curso);
         $t2->incrementSeconds(60);
 
+        $r1 = new TimeTrackingRouteDaily($student, $day1, '/virtual/cursos');
+        $r1->setCurso($curso);
+        $r1->incrementSeconds(60);
+
+        $r2 = new TimeTrackingRouteDaily($student, $day2, '/virtual/cursos');
+        $r2->setCurso($curso);
+        $r2->incrementSeconds(60);
+
         $this->entityManager->persist($t1);
         $this->entityManager->persist($t2);
+        $this->entityManager->persist($r1);
+        $this->entityManager->persist($r2);
         $this->createdEntities[] = $t1;
         $this->createdEntities[] = $t2;
+        $this->createdEntities[] = $r1;
+        $this->createdEntities[] = $r2;
 
         $this->entityManager->flush();
     }

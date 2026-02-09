@@ -46,7 +46,7 @@
 - Tests: unit/integration + fixtures adicionales.
  
 ## Tests
-- PHPUnit: OK (5 tests, 24 assertions).
+- PHPUnit: OK (7 tests, 35 assertions).
 - Frontend: ESLint OK (sin errores ni warnings).
 
 ## Pending - Frontend (especifico)
