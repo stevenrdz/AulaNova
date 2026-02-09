@@ -520,3 +520,17 @@ div.code-toolbar:hover > .toolbar {
 .bg-primary {
   background-color: var(--primary-color);
 }
+
+/* Accessibility focus styles */
+.navbar-vertical .navbar-nav .nav-item .nav-link:focus-visible {
+  outline: 2px solid #38bdf8;
+  outline-offset: 2px;
+}
+
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: 2px solid #38bdf8;
+  outline-offset: 2px;
+  border-color: #38bdf8;
+}

@@ -1,5 +1,6 @@
 import axios, { AxiosError } from 'axios'
 import { useAuthStore } from '@/store/auth'
+import { useToastStore } from '@/store/toast'
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL as string
@@ -26,6 +27,7 @@ api.interceptors.response.use(
   (response) => response,
   async (error: AxiosError) => {
     const auth = useAuthStore()
+    const toast = useToastStore()
     const status = error.response?.status
     const original = error.config as any
 
@@ -61,6 +63,14 @@ api.interceptors.response.use(
       } finally {
         isRefreshing = false
       }
+    }
+
+    const message =
+      (error.response?.data as any)?.message ||
+      (error.response?.data as any)?.error ||
+      'Ocurrio un error inesperado'
+    if (status && status !== 401) {
+      toast.add(message, 'error')
     }
 
     return Promise.reject(error)

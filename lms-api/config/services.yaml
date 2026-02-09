@@ -1,5 +1,10 @@
 parameters:
   app.minio.bucket: '%env(MINIO_BUCKET)%'
+  app.minio.public_endpoint: '%env(resolve:MINIO_PUBLIC_ENDPOINT)%'
+  app.minio.access_key: '%env(MINIO_ACCESS_KEY)%'
+  app.minio.secret_key: '%env(MINIO_SECRET_KEY)%'
+  app.minio.region: '%env(MINIO_REGION)%'
+  app.minio.use_path_style: '%env(bool:MINIO_USE_PATH_STYLE)%'
   app.jwt_ttl: '%env(int:JWT_TTL)%'
   app.refresh_ttl: '%env(int:REFRESH_TOKEN_TTL)%'
 

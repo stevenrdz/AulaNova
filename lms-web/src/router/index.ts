@@ -20,6 +20,10 @@ import AdminCursosView from '@/modules/admin/AdminCursosView.vue'
 import AdminCursosVirtualesView from '@/modules/admin/AdminCursosVirtualesView.vue'
 import AdminCursoDetailView from '@/modules/admin/AdminCursoDetailView.vue'
 import AdminInstitutionConfigView from '@/modules/admin/AdminInstitutionConfigView.vue'
+import AdminQuizzesView from '@/modules/admin/AdminQuizzesView.vue'
+import AdminQuestionsView from '@/modules/admin/AdminQuestionsView.vue'
+import AdminAttemptsView from '@/modules/admin/AdminAttemptsView.vue'
+import AdminAnswersView from '@/modules/admin/AdminAnswersView.vue'
 
 import TeacherLayout from '@/modules/teacher/TeacherLayout.vue'
 import TeacherDashboardView from '@/modules/teacher/TeacherDashboardView.vue'
@@ -57,7 +61,11 @@ const router = createRouter({
         { path: 'estructuracion/carreras', component: AdminCarrerasView },
         { path: 'estructuracion/cursos', component: AdminCursosView },
         { path: 'academico/cursos-virtuales', component: AdminCursosVirtualesView },
-        { path: 'academico/cursos/:id', component: AdminCursoDetailView }
+        { path: 'academico/cursos/:id', component: AdminCursoDetailView },
+        { path: 'academico/quizzes', component: AdminQuizzesView },
+        { path: 'academico/preguntas', component: AdminQuestionsView },
+        { path: 'academico/intentos', component: AdminAttemptsView },
+        { path: 'academico/respuestas', component: AdminAnswersView }
       ]
     },
     {

@@ -1,7 +1,12 @@
 <template>
-  <PageHeader title="Administrativos" subtitle="Gestion de administrativos." />
+  <PageHeader
+    title="Administrativos"
+    subtitle="Gestion de administrativos."
+  />
   <BaseCard>
-    <p class="text-gray-600">Placeholder de modulo.</p>
+    <p class="text-gray-600">
+      Placeholder de modulo.
+    </p>
   </BaseCard>
 </template>
 

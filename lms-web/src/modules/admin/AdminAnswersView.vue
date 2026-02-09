@@ -1,28 +1,24 @@
 ﻿<template>
   <PageHeader
-    title="Sede Jornada"
-    subtitle="Gestion de sedes y jornadas."
+    title="Respuestas"
+    subtitle="Gestion de respuestas."
   />
   <BaseCard>
     <div class="flex flex-wrap gap-3 items-center justify-between">
-      <div class="flex gap-2 items-center">
-        <input
-          v-model="filters.q"
-          class="form-input"
-          placeholder="Buscar..."
-        >
+      <div class="flex flex-col gap-2 sm:flex-row sm:items-center">
         <select
-          v-model="filters.is_active"
-          class="form-select"
+          v-model="filters.attempt_id"
+          class="form-select w-full sm:w-56"
         >
           <option value="">
-            Estado
+            Intento
           </option>
-          <option value="true">
-            Activo
-          </option>
-          <option value="false">
-            Inactivo
+          <option
+            v-for="a in lookups.attempts"
+            :key="a.id"
+            :value="a.id"
+          >
+            #{{ a.id }} - {{ a.quiz?.title || 'Quiz' }}
           </option>
         </select>
         <BaseButton
@@ -33,7 +29,7 @@
         </BaseButton>
       </div>
       <BaseButton @click="openCreate">
-        Nueva sede
+        Nueva respuesta
       </BaseButton>
     </div>
 
@@ -52,10 +48,13 @@
               ID
             </th>
             <th class="py-2">
-              Nombre
+              Intento
             </th>
             <th class="py-2">
-              Estado
+              Pregunta
+            </th>
+            <th class="py-2">
+              Correcta
             </th>
             <th class="py-2">
               Acciones
@@ -65,7 +64,7 @@
         <tbody>
           <tr v-if="loading">
             <td
-              colspan="4"
+              colspan="5"
               class="py-3 text-gray-500"
             >
               Cargando...
@@ -80,12 +79,13 @@
               {{ item.id }}
             </td>
             <td class="py-2">
-              {{ item.name }}
+              {{ item.attempt?.id || '-' }}
             </td>
             <td class="py-2">
-              <span :class="item.is_active ? 'text-green-600' : 'text-gray-500'">
-                {{ item.is_active ? 'Activo' : 'Inactivo' }}
-              </span>
+              {{ item.question?.prompt || item.question?.id || '-' }}
+            </td>
+            <td class="py-2">
+              {{ item.is_correct ? 'Si' : 'No' }}
             </td>
             <td class="py-2 flex gap-2">
               <BaseButton
@@ -136,20 +136,73 @@
       @submit.prevent="save"
     >
       <div>
-        <label class="text-sm text-gray-600">Nombre</label>
-        <input
-          v-model="form.name"
-          class="form-input w-full"
+        <label class="text-sm text-gray-600">Intento</label>
+        <select
+          v-model="form.attempt_id"
+          class="form-select w-full"
           required
         >
+          <option value="">
+            Selecciona
+          </option>
+          <option
+            v-for="a in lookups.attempts"
+            :key="a.id"
+            :value="a.id"
+          >
+            #{{ a.id }} - {{ a.quiz?.title || 'Quiz' }}
+          </option>
+        </select>
+        <p class="text-xs text-gray-500 mt-1">
+          Selecciona el intento que recibira la respuesta.
+        </p>
+      </div>
+      <div>
+        <label class="text-sm text-gray-600">Pregunta</label>
+        <select
+          v-model="form.question_id"
+          class="form-select w-full"
+          required
+        >
+          <option value="">
+            Selecciona
+          </option>
+          <option
+            v-for="q in lookups.questions"
+            :key="q.id"
+            :value="q.id"
+          >
+            #{{ q.id }} - {{ q.prompt }}
+          </option>
+        </select>
+        <p class="text-xs text-gray-500 mt-1">
+          Asegura que la pregunta pertenece al quiz del intento.
+        </p>
+      </div>
+      <div>
+        <label class="text-sm text-gray-600">Respuesta</label>
+        <textarea
+          v-model="form.answer_text"
+          class="form-input w-full"
+          rows="2"
+        />
+        <p class="text-xs text-gray-500 mt-1">
+          Opcional para SINGLE si solo marcas correcta.
+        </p>
       </div>
       <div class="flex items-center gap-2">
         <input
-          id="is_active"
-          v-model="form.is_active"
+          id="is_correct"
+          v-model="form.is_correct"
           type="checkbox"
         >
-        <label for="is_active">Activo</label>
+        <label for="is_correct">Correcta</label>
+      </div>
+      <div
+        v-if="modalError"
+        class="text-xs text-rose-600"
+      >
+        {{ modalError }}
       </div>
     </form>
     <template #footer>
@@ -159,7 +212,10 @@
       >
         Cancelar
       </BaseButton>
-      <BaseButton @click="save">
+      <BaseButton
+        :disabled="!!validateForm()"
+        @click="save"
+      >
         Guardar
       </BaseButton>
     </template>
@@ -172,34 +228,44 @@ import PageHeader from '@/components/ui/PageHeader.vue'
 import BaseCard from '@/components/ui/BaseCard.vue'
 import BaseButton from '@/components/ui/BaseButton.vue'
 import BaseModal from '@/components/ui/BaseModal.vue'
-import { structureApi } from '@/api/structure'
+import { assessmentsApi } from '@/api/assessments'
 
-interface Item {
-  id: number
-  name: string
-  is_active: boolean
-}
-
-const items = ref<Item[]>([])
+const items = ref<any[]>([])
 const loading = ref(false)
 const errorMessage = ref('')
 const meta = reactive({ page: 1, limit: 20, total_pages: 1 })
-const filters = reactive({ q: '', is_active: '' })
+const filters = reactive({ attempt_id: '' })
+const lookups = reactive({ attempts: [] as any[], questions: [] as any[] })
 
 const showModal = ref(false)
 const editingId = ref<number | null>(null)
-const form = reactive({ name: '', is_active: true })
+const modalError = ref('')
+const form = reactive({ attempt_id: '', question_id: '', answer_text: '', is_correct: false })
 
-const modalTitle = computed(() => (editingId.value ? 'Editar sede' : 'Nueva sede'))
+const modalTitle = computed(() => (editingId.value ? 'Editar respuesta' : 'Nueva respuesta'))
+
+const validateForm = () => {
+  if (!form.attempt_id) return 'Selecciona un intento.'
+  if (!form.question_id) return 'Selecciona una pregunta.'
+  return ''
+}
+
+const loadLookups = async () => {
+  const [attempts, questions] = await Promise.all([
+    assessmentsApi.attempts.list({ page: 1, limit: 200 }),
+    assessmentsApi.questions.list({ page: 1, limit: 200 })
+  ])
+  lookups.attempts = attempts.data.data
+  lookups.questions = questions.data.data
+}
 
 const load = async () => {
   loading.value = true
   errorMessage.value = ''
   try {
     const params: Record<string, any> = { page: meta.page, limit: meta.limit }
-    if (filters.q) params.q = filters.q
-    if (filters.is_active !== '') params.is_active = filters.is_active
-    const { data } = await structureApi.sedeJornadas.list(params)
+    if (filters.attempt_id) params.attempt_id = filters.attempt_id
+    const { data } = await assessmentsApi.answers.list(params)
     items.value = data.data
     meta.total_pages = data.meta.total_pages
   } catch (err: any) {
@@ -211,26 +277,39 @@ const load = async () => {
 
 const openCreate = () => {
   editingId.value = null
-  form.name = ''
-  form.is_active = true
+  form.attempt_id = ''
+  form.question_id = ''
+  form.answer_text = ''
+  form.is_correct = false
+  modalError.value = ''
   showModal.value = true
 }
 
-const openEdit = (item: Item) => {
+const openEdit = (item: any) => {
   editingId.value = item.id
-  form.name = item.name
-  form.is_active = item.is_active
+  form.attempt_id = item.attempt?.id?.toString() || ''
+  form.question_id = item.question?.id?.toString() || ''
+  form.answer_text = item.answer_text || ''
+  form.is_correct = !!item.is_correct
+  modalError.value = ''
   showModal.value = true
 }
 
 const save = async () => {
   errorMessage.value = ''
+  modalError.value = validateForm()
+  if (modalError.value) return
   try {
-    const payload = { name: form.name, is_active: form.is_active }
+    const payload = {
+      attempt_id: Number(form.attempt_id),
+      question_id: Number(form.question_id),
+      answer_text: form.answer_text || null,
+      is_correct: form.is_correct
+    }
     if (editingId.value) {
-      await structureApi.sedeJornadas.update(editingId.value, payload)
+      await assessmentsApi.answers.update(editingId.value, payload)
     } else {
-      await structureApi.sedeJornadas.create(payload)
+      await assessmentsApi.answers.create(payload)
     }
     showModal.value = false
     await load()
@@ -239,10 +318,10 @@ const save = async () => {
   }
 }
 
-const remove = async (item: Item) => {
-  if (!confirm(`Eliminar ${item.name}?`)) return
+const remove = async (item: any) => {
+  if (!confirm('Eliminar respuesta?')) return
   try {
-    await structureApi.sedeJornadas.remove(item.id)
+    await assessmentsApi.answers.remove(item.id)
     await load()
   } catch (err: any) {
     errorMessage.value = err?.response?.data?.message || 'No se pudo eliminar'
@@ -263,5 +342,8 @@ const nextPage = () => {
   }
 }
 
-onMounted(load)
+onMounted(async () => {
+  await loadLookups()
+  await load()
+})
 </script>

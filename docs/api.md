@@ -551,6 +551,67 @@ Respuestas de error
 ```
 ```json
 { "message": "No se puede eliminar el registro." }
+**POST `/virtual/actividades/{id}/submissions`** (student)
+```json
+{
+  "content": "Mi respuesta",
+  "file_id": 10
+}
+```
+Validaciones:
+- `content` o `file_id` requerido (al menos uno)
+- `file_id` si viene debe existir
+- respeta `due_at` (si la actividad ya vencio, devuelve 400)
+
+**GET `/virtual/actividades/{id}/submissions`** (teacher/admin)  
+Query: `page`, `limit`, `status`, `user_id`
+```json
+{
+  "data": [
+    {
+      "id": 1,
+      "status": "SUBMITTED",
+      "grade": null,
+      "feedback": null,
+      "content": "Mi respuesta",
+      "submitted_at": "2026-02-09 12:00:00",
+      "graded_at": null,
+      "actividad": { "id": 1, "curso_virtual_id": 1 },
+      "user": { "id": 5, "email": "student@lms.local", "first_name": "Student", "last_name": "LMS" },
+      "file": { "id": 10, "key": "uploads/...", "bucket": "lms", "original_name": "tarea.pdf", "mime_type": "application/pdf", "size": 12000 }
+    }
+  ],
+  "meta": { "page": 1, "limit": 20, "total": 1, "total_pages": 1 }
+}
+```
+**GET `/virtual/actividades/{id}/submissions/me`** (student)
+```json
+{
+  "data": [
+    {
+      "id": 1,
+      "status": "GRADED",
+      "grade": 95,
+      "feedback": "Buen trabajo",
+      "content": "Mi respuesta",
+      "submitted_at": "2026-02-09 12:00:00",
+      "graded_at": "2026-02-10 09:00:00",
+      "actividad": { "id": 1, "curso_virtual_id": 1 },
+      "user": { "id": 5, "email": "student@lms.local", "first_name": "Student", "last_name": "LMS" },
+      "file": null
+    }
+  ],
+  "meta": { "page": 1, "limit": 20, "total": 1, "total_pages": 1 }
+}
+```
+**PUT `/virtual/actividades/submissions/{id}`** (teacher/admin)
+```json
+{
+  "grade": 90,
+  "feedback": "Buen trabajo",
+  "status": "GRADED"
+}
+```
 ```
 
 **GET `/structure/niveles`**  
@@ -1419,6 +1480,11 @@ Respuestas
   }
 }
 ```
+
+Flujo de upload (browser):
+- Llamar `POST /files/presign` y usar la `url` para hacer PUT directo al bucket.
+- Luego llamar `POST /files/complete` para registrar el archivo en BD.
+- Para que funcione desde navegador, configurar `MINIO_PUBLIC_ENDPOINT` (ej: `http://localhost:9000`).
 
 **POST `/files/complete`**
 ```json

@@ -1,28 +1,24 @@
 ﻿<template>
   <PageHeader
-    title="Sede Jornada"
-    subtitle="Gestion de sedes y jornadas."
+    title="Intentos"
+    subtitle="Gestion de intentos."
   />
   <BaseCard>
     <div class="flex flex-wrap gap-3 items-center justify-between">
-      <div class="flex gap-2 items-center">
-        <input
-          v-model="filters.q"
-          class="form-input"
-          placeholder="Buscar..."
-        >
+      <div class="flex flex-col gap-2 sm:flex-row sm:items-center">
         <select
-          v-model="filters.is_active"
-          class="form-select"
+          v-model="filters.quiz_id"
+          class="form-select w-full sm:w-64"
         >
           <option value="">
-            Estado
+            Quiz
           </option>
-          <option value="true">
-            Activo
-          </option>
-          <option value="false">
-            Inactivo
+          <option
+            v-for="q in lookups.quizzes"
+            :key="q.id"
+            :value="q.id"
+          >
+            #{{ q.id }} - {{ q.title }}
           </option>
         </select>
         <BaseButton
@@ -33,7 +29,7 @@
         </BaseButton>
       </div>
       <BaseButton @click="openCreate">
-        Nueva sede
+        Nuevo intento
       </BaseButton>
     </div>
 
@@ -52,7 +48,10 @@
               ID
             </th>
             <th class="py-2">
-              Nombre
+              Quiz
+            </th>
+            <th class="py-2">
+              Usuario
             </th>
             <th class="py-2">
               Estado
@@ -65,7 +64,7 @@
         <tbody>
           <tr v-if="loading">
             <td
-              colspan="4"
+              colspan="5"
               class="py-3 text-gray-500"
             >
               Cargando...
@@ -80,19 +79,20 @@
               {{ item.id }}
             </td>
             <td class="py-2">
-              {{ item.name }}
+              {{ item.quiz?.title || item.quiz?.id || '-' }}
             </td>
             <td class="py-2">
-              <span :class="item.is_active ? 'text-green-600' : 'text-gray-500'">
-                {{ item.is_active ? 'Activo' : 'Inactivo' }}
-              </span>
+              {{ item.user ? item.user.first_name + ' ' + item.user.last_name : '-' }}
+            </td>
+            <td class="py-2">
+              {{ item.finished_at ? 'Finalizado' : 'En curso' }}
             </td>
             <td class="py-2 flex gap-2">
               <BaseButton
                 variant="secondary"
-                @click="openEdit(item)"
+                @click="finish(item)"
               >
-                Editar
+                Finalizar
               </BaseButton>
               <BaseButton
                 variant="secondary"
@@ -129,27 +129,39 @@
 
   <BaseModal
     v-model="showModal"
-    :title="modalTitle"
+    title="Nuevo intento"
   >
     <form
       class="grid gap-3"
       @submit.prevent="save"
     >
       <div>
-        <label class="text-sm text-gray-600">Nombre</label>
-        <input
-          v-model="form.name"
-          class="form-input w-full"
+        <label class="text-sm text-gray-600">Quiz</label>
+        <select
+          v-model="form.quiz_id"
+          class="form-select w-full"
           required
         >
+          <option value="">
+            Selecciona
+          </option>
+          <option
+            v-for="q in lookups.quizzes"
+            :key="q.id"
+            :value="q.id"
+          >
+            #{{ q.id }} - {{ q.title }}
+          </option>
+        </select>
+        <p class="text-xs text-gray-500 mt-1">
+          Crea un intento manual para pruebas o recuperaciones.
+        </p>
       </div>
-      <div class="flex items-center gap-2">
-        <input
-          id="is_active"
-          v-model="form.is_active"
-          type="checkbox"
-        >
-        <label for="is_active">Activo</label>
+      <div
+        v-if="modalError"
+        class="text-xs text-rose-600"
+      >
+        {{ modalError }}
       </div>
     </form>
     <template #footer>
@@ -159,47 +171,52 @@
       >
         Cancelar
       </BaseButton>
-      <BaseButton @click="save">
-        Guardar
+      <BaseButton
+        :disabled="!!validateForm()"
+        @click="save"
+      >
+        Crear
       </BaseButton>
     </template>
   </BaseModal>
 </template>
 
 <script setup lang="ts">
-import { onMounted, reactive, ref, computed } from 'vue'
+import { onMounted, reactive, ref } from 'vue'
 import PageHeader from '@/components/ui/PageHeader.vue'
 import BaseCard from '@/components/ui/BaseCard.vue'
 import BaseButton from '@/components/ui/BaseButton.vue'
 import BaseModal from '@/components/ui/BaseModal.vue'
-import { structureApi } from '@/api/structure'
+import { assessmentsApi } from '@/api/assessments'
 
-interface Item {
-  id: number
-  name: string
-  is_active: boolean
-}
-
-const items = ref<Item[]>([])
+const items = ref<any[]>([])
 const loading = ref(false)
 const errorMessage = ref('')
 const meta = reactive({ page: 1, limit: 20, total_pages: 1 })
-const filters = reactive({ q: '', is_active: '' })
+const filters = reactive({ quiz_id: '' })
+const lookups = reactive({ quizzes: [] as any[] })
 
 const showModal = ref(false)
-const editingId = ref<number | null>(null)
-const form = reactive({ name: '', is_active: true })
+const modalError = ref('')
+const form = reactive({ quiz_id: '' })
 
-const modalTitle = computed(() => (editingId.value ? 'Editar sede' : 'Nueva sede'))
+const validateForm = () => {
+  if (!form.quiz_id) return 'Selecciona un quiz.'
+  return ''
+}
+
+const loadLookups = async () => {
+  const { data } = await assessmentsApi.quizzes.list({ page: 1, limit: 200 })
+  lookups.quizzes = data.data
+}
 
 const load = async () => {
   loading.value = true
   errorMessage.value = ''
   try {
     const params: Record<string, any> = { page: meta.page, limit: meta.limit }
-    if (filters.q) params.q = filters.q
-    if (filters.is_active !== '') params.is_active = filters.is_active
-    const { data } = await structureApi.sedeJornadas.list(params)
+    if (filters.quiz_id) params.quiz_id = filters.quiz_id
+    const { data } = await assessmentsApi.attempts.list(params)
     items.value = data.data
     meta.total_pages = data.meta.total_pages
   } catch (err: any) {
@@ -210,39 +227,36 @@ const load = async () => {
 }
 
 const openCreate = () => {
-  editingId.value = null
-  form.name = ''
-  form.is_active = true
-  showModal.value = true
-}
-
-const openEdit = (item: Item) => {
-  editingId.value = item.id
-  form.name = item.name
-  form.is_active = item.is_active
+  form.quiz_id = ''
+  modalError.value = ''
   showModal.value = true
 }
 
 const save = async () => {
-  errorMessage.value = ''
+  modalError.value = validateForm()
+  if (modalError.value) return
   try {
-    const payload = { name: form.name, is_active: form.is_active }
-    if (editingId.value) {
-      await structureApi.sedeJornadas.update(editingId.value, payload)
-    } else {
-      await structureApi.sedeJornadas.create(payload)
-    }
+    await assessmentsApi.attempts.create({ quiz_id: Number(form.quiz_id) })
     showModal.value = false
     await load()
   } catch (err: any) {
-    errorMessage.value = err?.response?.data?.message || 'No se pudo guardar'
+    errorMessage.value = err?.response?.data?.message || 'No se pudo crear'
   }
 }
 
-const remove = async (item: Item) => {
-  if (!confirm(`Eliminar ${item.name}?`)) return
+const finish = async (item: any) => {
   try {
-    await structureApi.sedeJornadas.remove(item.id)
+    await assessmentsApi.attempts.finish(item.id)
+    await load()
+  } catch (err: any) {
+    errorMessage.value = err?.response?.data?.message || 'No se pudo finalizar'
+  }
+}
+
+const remove = async (item: any) => {
+  if (!confirm('Eliminar intento?')) return
+  try {
+    await assessmentsApi.attempts.remove(item.id)
     await load()
   } catch (err: any) {
     errorMessage.value = err?.response?.data?.message || 'No se pudo eliminar'
@@ -263,5 +277,8 @@ const nextPage = () => {
   }
 }
 
-onMounted(load)
+onMounted(async () => {
+  await loadLookups()
+  await load()
+})
 </script>

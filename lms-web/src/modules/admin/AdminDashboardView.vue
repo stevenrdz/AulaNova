@@ -1,5 +1,8 @@
 <template>
-  <PageHeader title="Dashboard" subtitle="Resumen general del LMS." />
+  <PageHeader
+    title="Dashboard"
+    subtitle="Resumen general del LMS."
+  />
 
   <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-4">
     <BaseCard>
@@ -10,7 +13,9 @@
         </div>
       </div>
       <div class="mt-4">
-        <h2 class="text-xl font-bold">0</h2>
+        <h2 class="text-xl font-bold">
+          0
+        </h2>
         <span class="text-gray-500">Registrados</span>
       </div>
     </BaseCard>
@@ -22,7 +27,9 @@
         </div>
       </div>
       <div class="mt-4">
-        <h2 class="text-xl font-bold">0</h2>
+        <h2 class="text-xl font-bold">
+          0
+        </h2>
         <span class="text-gray-500">Activos</span>
       </div>
     </BaseCard>
@@ -34,7 +41,9 @@
         </div>
       </div>
       <div class="mt-4">
-        <h2 class="text-xl font-bold">0</h2>
+        <h2 class="text-xl font-bold">
+          0
+        </h2>
         <span class="text-gray-500">Creados</span>
       </div>
     </BaseCard>
@@ -46,7 +55,9 @@
         </div>
       </div>
       <div class="mt-4">
-        <h2 class="text-xl font-bold">0</h2>
+        <h2 class="text-xl font-bold">
+          0
+        </h2>
         <span class="text-gray-500">Pendientes</span>
       </div>
     </BaseCard>

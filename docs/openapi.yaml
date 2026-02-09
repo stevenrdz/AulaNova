@@ -321,6 +321,50 @@ components:
           mime_type: text/plain
           size: 5
         attachments: []
+    ActividadEntrega:
+      type: object
+      properties:
+        id: { type: integer }
+        status: { type: string }
+        grade: { type: number, nullable: true }
+        feedback: { type: string, nullable: true }
+        content: { type: string, nullable: true }
+        submitted_at: { type: string, format: date-time }
+        graded_at: { type: string, format: date-time, nullable: true }
+        actividad:
+          type: object
+          properties:
+            id: { type: integer }
+            curso_virtual_id: { type: integer }
+        user:
+          type: object
+          properties:
+            id: { type: integer }
+            email: { type: string }
+            first_name: { type: string }
+            last_name: { type: string }
+        file:
+          allOf:
+            - $ref: '#/components/schemas/FileObject'
+          nullable: true
+      required: [id, status, submitted_at, actividad, user]
+      example:
+        id: 1
+        status: SUBMITTED
+        grade: null
+        feedback: null
+        content: Mi respuesta
+        submitted_at: 2026-02-09 12:00:00
+        graded_at: null
+        actividad:
+          id: 1
+          curso_virtual_id: 1
+        user:
+          id: 5
+          email: student@lms.local
+          first_name: Student
+          last_name: LMS
+        file: null
     Quiz:
       type: object
       properties:
@@ -1857,6 +1901,132 @@ paths:
               schema: { $ref: '#/components/schemas/ErrorMessage' }
         '409':
           description: Conflict
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorMessage' }
+  /virtual/actividades/{id}/submissions:
+    get:
+      tags: [Virtual]
+      security: [bearerAuth: []]
+      parameters:
+        - in: query
+          name: page
+          schema: { type: integer }
+        - in: query
+          name: limit
+          schema: { type: integer }
+        - in: query
+          name: status
+          schema: { type: string }
+        - in: query
+          name: user_id
+          schema: { type: integer }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items: { $ref: '#/components/schemas/ActividadEntrega' }
+                  meta: { $ref: '#/components/schemas/PaginationMeta' }
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorMessage' }
+    post:
+      tags: [Virtual]
+      security: [bearerAuth: []]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                content: { type: string }
+                file_id: { type: integer }
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: { $ref: '#/components/schemas/ActividadEntrega' }
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorMessage' }
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorMessage' }
+  /virtual/actividades/{id}/submissions/me:
+    get:
+      tags: [Virtual]
+      security: [bearerAuth: []]
+      parameters:
+        - in: query
+          name: page
+          schema: { type: integer }
+        - in: query
+          name: limit
+          schema: { type: integer }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items: { $ref: '#/components/schemas/ActividadEntrega' }
+                  meta: { $ref: '#/components/schemas/PaginationMeta' }
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorMessage' }
+  /virtual/actividades/submissions/{id}:
+    put:
+      tags: [Virtual]
+      security: [bearerAuth: []]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                grade: { type: number }
+                feedback: { type: string }
+                status: { type: string }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: { $ref: '#/components/schemas/ActividadEntrega' }
+        '404':
+          description: Not found
           content:
             application/json:
               schema: { $ref: '#/components/schemas/ErrorMessage' }

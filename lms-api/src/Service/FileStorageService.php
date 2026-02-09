@@ -11,10 +11,17 @@ class FileStorageService
 
     public function __construct(
         private readonly S3Client $s3Client,
-        #[Autowire('%app.minio.bucket%')] string $bucket
+        #[Autowire('%app.minio.bucket%')] string $bucket,
+        #[Autowire('%app.minio.public_endpoint%')] private readonly ?string $publicEndpoint = null,
+        #[Autowire('%app.minio.access_key%')] private readonly ?string $accessKey = null,
+        #[Autowire('%app.minio.secret_key%')] private readonly ?string $secretKey = null,
+        #[Autowire('%app.minio.region%')] private readonly ?string $region = null,
+        #[Autowire('%app.minio.use_path_style%')] private readonly bool $usePathStyle = true
     ) {
         $this->bucket = $bucket;
     }
+
+    private ?S3Client $publicClient = null;
 
     public function createPresignedUpload(string $filename, string $mimeType): array
     {
@@ -22,13 +29,14 @@ class FileStorageService
         $random = bin2hex(random_bytes(16));
         $key = 'uploads/' . date('Y/m') . '/' . $random . ($extension ? '.' . $extension : '');
 
-        $command = $this->s3Client->getCommand('PutObject', [
+        $client = $this->getPresignClient();
+        $command = $client->getCommand('PutObject', [
             'Bucket' => $this->bucket,
             'Key' => $key,
             'ContentType' => $mimeType,
         ]);
 
-        $request = $this->s3Client->createPresignedRequest($command, '+15 minutes');
+        $request = $client->createPresignedRequest($command, '+15 minutes');
 
         return [
             'url' => (string) $request->getUri(),
@@ -49,14 +57,15 @@ class FileStorageService
         $disposition = strtolower($disposition) === 'inline' ? 'inline' : 'attachment';
         $safeName = trim($filename) !== '' ? $filename : 'download';
 
-        $command = $this->s3Client->getCommand('GetObject', [
+        $client = $this->getPresignClient();
+        $command = $client->getCommand('GetObject', [
             'Bucket' => $bucket,
             'Key' => $key,
             'ResponseContentType' => $mimeType ?: 'application/octet-stream',
             'ResponseContentDisposition' => sprintf('%s; filename="%s"', $disposition, addcslashes($safeName, '"\\')),
         ]);
 
-        $request = $this->s3Client->createPresignedRequest($command, '+15 minutes');
+        $request = $client->createPresignedRequest($command, '+15 minutes');
 
         return [
             'url' => (string) $request->getUri(),
@@ -64,6 +73,39 @@ class FileStorageService
             'bucket' => $bucket,
             'expires_in' => 900,
         ];
+    }
+
+    private function getPresignClient(): S3Client
+    {
+        if (!$this->publicEndpoint) {
+            return $this->s3Client;
+        }
+
+        if ($this->publicClient instanceof S3Client) {
+            return $this->publicClient;
+        }
+
+        $region = $this->region ?: 'us-east-1';
+        $credentials = null;
+        if ($this->accessKey && $this->secretKey) {
+            $credentials = [
+                'key' => $this->accessKey,
+                'secret' => $this->secretKey,
+            ];
+        }
+
+        $config = [
+            'version' => 'latest',
+            'region' => $region,
+            'endpoint' => $this->publicEndpoint,
+            'use_path_style_endpoint' => $this->usePathStyle,
+        ];
+        if ($credentials) {
+            $config['credentials'] = $credentials;
+        }
+        $this->publicClient = new S3Client($config);
+
+        return $this->publicClient;
     }
 
     public function getObjectContents(string $key, ?string $bucket = null): string

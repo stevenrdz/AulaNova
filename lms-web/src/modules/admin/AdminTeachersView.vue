@@ -1,7 +1,12 @@
 <template>
-  <PageHeader title="Docentes" subtitle="Gestion de docentes." />
+  <PageHeader
+    title="Docentes"
+    subtitle="Gestion de docentes."
+  />
   <BaseCard>
-    <p class="text-gray-600">Placeholder de modulo.</p>
+    <p class="text-gray-600">
+      Placeholder de modulo.
+    </p>
   </BaseCard>
 </template>
 

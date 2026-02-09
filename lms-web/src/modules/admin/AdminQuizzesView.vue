@@ -1,29 +1,29 @@
 ﻿<template>
   <PageHeader
-    title="Cursos virtuales"
-    subtitle="Gestion de cursos virtuales."
+    title="Evaluaciones"
+    subtitle="Gestion de quizzes."
   />
   <BaseCard>
     <div class="flex flex-wrap gap-3 items-center justify-between">
-      <div class="flex gap-2 items-center">
+      <div class="flex flex-col gap-2 sm:flex-row sm:items-center">
         <input
           v-model="filters.q"
-          class="form-input"
-          placeholder="Buscar..."
+          class="form-input w-full sm:w-56"
+          placeholder="Buscar por titulo..."
         >
         <select
-          v-model="filters.curso_id"
-          class="form-select"
+          v-model="filters.curso_virtual_id"
+          class="form-select w-full sm:w-56"
         >
           <option value="">
-            Curso
+            Curso virtual
           </option>
           <option
-            v-for="c in lookups.cursos"
+            v-for="c in lookups.cursosVirtuales"
             :key="c.id"
             :value="c.id"
           >
-            {{ c.name }}
+            #{{ c.id }} - {{ c.curso?.name || 'Curso' }}
           </option>
         </select>
         <BaseButton
@@ -34,7 +34,7 @@
         </BaseButton>
       </div>
       <BaseButton @click="openCreate">
-        Nuevo curso virtual
+        Nuevo quiz
       </BaseButton>
     </div>
 
@@ -53,10 +53,13 @@
               ID
             </th>
             <th class="py-2">
-              Curso
+              Titulo
             </th>
             <th class="py-2">
-              Descripcion
+              Curso virtual
+            </th>
+            <th class="py-2">
+              Fechas
             </th>
             <th class="py-2">
               Acciones
@@ -66,7 +69,7 @@
         <tbody>
           <tr v-if="loading">
             <td
-              colspan="4"
+              colspan="5"
               class="py-3 text-gray-500"
             >
               Cargando...
@@ -81,10 +84,13 @@
               {{ item.id }}
             </td>
             <td class="py-2">
-              {{ item.curso?.name || '-' }}
+              {{ item.title }}
             </td>
             <td class="py-2">
-              {{ item.description || '-' }}
+              {{ item.curso_virtual?.id || '-' }}
+            </td>
+            <td class="py-2">
+              <div>{{ item.start_at || '-' }} / {{ item.end_at || '-' }}</div>
             </td>
             <td class="py-2 flex gap-2">
               <BaseButton
@@ -135,9 +141,9 @@
       @submit.prevent="save"
     >
       <div>
-        <label class="text-sm text-gray-600">Curso</label>
+        <label class="text-sm text-gray-600">Curso virtual</label>
         <select
-          v-model="form.curso_id"
+          v-model="form.curso_virtual_id"
           class="form-select w-full"
           required
         >
@@ -145,13 +151,27 @@
             Selecciona
           </option>
           <option
-            v-for="c in lookups.cursos"
+            v-for="c in lookups.cursosVirtuales"
             :key="c.id"
             :value="c.id"
           >
-            {{ c.name }}
+            #{{ c.id }} - {{ c.curso?.name || 'Curso' }}
           </option>
         </select>
+        <p class="text-xs text-gray-500 mt-1">
+          Define el curso virtual donde vivira el quiz.
+        </p>
+      </div>
+      <div>
+        <label class="text-sm text-gray-600">Titulo</label>
+        <input
+          v-model="form.title"
+          class="form-input w-full"
+          required
+        >
+        <p class="text-xs text-gray-500 mt-1">
+          Usa un titulo corto y claro para estudiantes.
+        </p>
       </div>
       <div>
         <label class="text-sm text-gray-600">Descripcion</label>
@@ -160,6 +180,51 @@
           class="form-input w-full"
           rows="3"
         />
+        <p class="text-xs text-gray-500 mt-1">
+          Opcional. Contexto o instrucciones.
+        </p>
+      </div>
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="text-sm text-gray-600">Inicio</label>
+          <input
+            v-model="form.start_at"
+            type="datetime-local"
+            class="form-input w-full"
+          >
+          <p class="text-xs text-gray-500 mt-1">
+            Opcional. Fecha desde la que se habilita.
+          </p>
+        </div>
+        <div>
+          <label class="text-sm text-gray-600">Fin</label>
+          <input
+            v-model="form.end_at"
+            type="datetime-local"
+            class="form-input w-full"
+          >
+          <p class="text-xs text-gray-500 mt-1">
+            Opcional. Fecha de cierre.
+          </p>
+        </div>
+      </div>
+      <div>
+        <label class="text-sm text-gray-600">Tiempo limite (min)</label>
+        <input
+          v-model.number="form.time_limit_minutes"
+          type="number"
+          class="form-input w-full"
+          min="0"
+        >
+        <p class="text-xs text-gray-500 mt-1">
+          0 = sin limite.
+        </p>
+      </div>
+      <div
+        v-if="modalError"
+        class="text-xs text-rose-600"
+      >
+        {{ modalError }}
       </div>
     </form>
     <template #footer>
@@ -169,7 +234,10 @@
       >
         Cancelar
       </BaseButton>
-      <BaseButton @click="save">
+      <BaseButton
+        :disabled="!!validateForm()"
+        @click="save"
+      >
         Guardar
       </BaseButton>
     </template>
@@ -182,32 +250,45 @@ import PageHeader from '@/components/ui/PageHeader.vue'
 import BaseCard from '@/components/ui/BaseCard.vue'
 import BaseButton from '@/components/ui/BaseButton.vue'
 import BaseModal from '@/components/ui/BaseModal.vue'
+import { assessmentsApi } from '@/api/assessments'
 import { virtualApi } from '@/api/virtual'
-import { structureApi } from '@/api/structure'
 
-interface Item {
-  id: number
-  description?: string | null
-  curso?: { id: number; name: string }
-}
-
-const items = ref<Item[]>([])
+const items = ref<any[]>([])
 const loading = ref(false)
 const errorMessage = ref('')
 const meta = reactive({ page: 1, limit: 20, total_pages: 1 })
-const filters = reactive({ q: '', curso_id: '' })
-
-const lookups = reactive({ cursos: [] as any[] })
+const filters = reactive({ q: '', curso_virtual_id: '' })
+const lookups = reactive({ cursosVirtuales: [] as any[] })
 
 const showModal = ref(false)
 const editingId = ref<number | null>(null)
-const form = reactive({ curso_id: '', description: '' })
+const modalError = ref('')
+const form = reactive({
+  curso_virtual_id: '',
+  title: '',
+  description: '',
+  start_at: '',
+  end_at: '',
+  time_limit_minutes: 0
+})
 
-const modalTitle = computed(() => (editingId.value ? 'Editar curso virtual' : 'Nuevo curso virtual'))
+const modalTitle = computed(() => (editingId.value ? 'Editar quiz' : 'Nuevo quiz'))
+
+const validateForm = () => {
+  if (!form.curso_virtual_id) return 'Selecciona un curso virtual.'
+  if (!form.title.trim()) return 'El titulo es obligatorio.'
+  if (form.start_at && form.end_at && form.start_at > form.end_at) {
+    return 'La fecha fin debe ser posterior a la fecha inicio.'
+  }
+  if (form.time_limit_minutes !== null && form.time_limit_minutes < 0) {
+    return 'El tiempo limite no puede ser negativo.'
+  }
+  return ''
+}
 
 const loadLookups = async () => {
-  const cursos = await structureApi.cursos.list({ page: 1, limit: 200 })
-  lookups.cursos = cursos.data.data
+  const { data } = await virtualApi.cursos.list({ page: 1, limit: 200 })
+  lookups.cursosVirtuales = data.data
 }
 
 const load = async () => {
@@ -216,8 +297,8 @@ const load = async () => {
   try {
     const params: Record<string, any> = { page: meta.page, limit: meta.limit }
     if (filters.q) params.q = filters.q
-    if (filters.curso_id) params.curso_id = filters.curso_id
-    const { data } = await virtualApi.cursos.list(params)
+    if (filters.curso_virtual_id) params.curso_virtual_id = filters.curso_virtual_id
+    const { data } = await assessmentsApi.quizzes.list(params)
     items.value = data.data
     meta.total_pages = data.meta.total_pages
   } catch (err: any) {
@@ -229,29 +310,45 @@ const load = async () => {
 
 const openCreate = () => {
   editingId.value = null
-  form.curso_id = ''
+  form.curso_virtual_id = ''
+  form.title = ''
   form.description = ''
+  form.start_at = ''
+  form.end_at = ''
+  form.time_limit_minutes = 0
+  modalError.value = ''
   showModal.value = true
 }
 
-const openEdit = (item: Item) => {
+const openEdit = (item: any) => {
   editingId.value = item.id
-  form.curso_id = item.curso?.id?.toString() || ''
+  form.curso_virtual_id = item.curso_virtual?.id?.toString() || ''
+  form.title = item.title
   form.description = item.description || ''
+  form.start_at = item.start_at ? item.start_at.replace(' ', 'T') : ''
+  form.end_at = item.end_at ? item.end_at.replace(' ', 'T') : ''
+  form.time_limit_minutes = item.time_limit_minutes || 0
+  modalError.value = ''
   showModal.value = true
 }
 
 const save = async () => {
   errorMessage.value = ''
+  modalError.value = validateForm()
+  if (modalError.value) return
   try {
     const payload = {
-      curso_id: Number(form.curso_id),
-      description: form.description || null
+      curso_virtual_id: Number(form.curso_virtual_id),
+      title: form.title,
+      description: form.description || null,
+      start_at: form.start_at ? form.start_at.replace('T', ' ') : null,
+      end_at: form.end_at ? form.end_at.replace('T', ' ') : null,
+      time_limit_minutes: form.time_limit_minutes || null
     }
     if (editingId.value) {
-      await virtualApi.cursos.update(editingId.value, payload)
+      await assessmentsApi.quizzes.update(editingId.value, payload)
     } else {
-      await virtualApi.cursos.create(payload)
+      await assessmentsApi.quizzes.create(payload)
     }
     showModal.value = false
     await load()
@@ -260,10 +357,10 @@ const save = async () => {
   }
 }
 
-const remove = async (item: Item) => {
-  if (!confirm('Eliminar curso virtual?')) return
+const remove = async (item: any) => {
+  if (!confirm(`Eliminar quiz ${item.title}?`)) return
   try {
-    await virtualApi.cursos.remove(item.id)
+    await assessmentsApi.quizzes.remove(item.id)
     await load()
   } catch (err: any) {
     errorMessage.value = err?.response?.data?.message || 'No se pudo eliminar'

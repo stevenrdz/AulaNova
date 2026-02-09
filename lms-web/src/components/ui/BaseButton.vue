@@ -1,5 +1,9 @@
 <template>
-  <button :type="type" :class="classes" :disabled="disabled">
+  <button
+    :type="type"
+    :class="classes"
+    :disabled="disabled"
+  >
     <slot />
   </button>
 </template>
@@ -9,10 +13,17 @@ import { computed } from 'vue'
 
 const props = defineProps<{ variant?: 'primary' | 'secondary'; type?: 'button' | 'submit'; disabled?: boolean }>()
 
+const focusClasses =
+  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-sky-400'
+
 const classes = computed(() => {
   if (props.variant === 'secondary') {
-    return 'btn bg-white text-gray-800 border-gray-600 hover:bg-gray-100 hover:text-gray-800 hover:border-gray-200'
+    return [
+      'btn bg-white text-gray-800 border-gray-600 hover:bg-gray-100 hover:text-gray-800 hover:border-gray-200',
+      'disabled:opacity-60 disabled:cursor-not-allowed',
+      focusClasses
+    ].join(' ')
   }
-  return 'btn btn-primary'
+  return ['btn btn-primary', 'disabled:opacity-60 disabled:cursor-not-allowed', focusClasses].join(' ')
 })
 </script>

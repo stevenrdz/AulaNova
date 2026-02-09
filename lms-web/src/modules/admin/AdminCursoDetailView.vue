@@ -1,7 +1,12 @@
 <template>
-  <PageHeader title="Detalle de curso" subtitle="Vista del curso virtual." />
+  <PageHeader
+    title="Detalle de curso"
+    subtitle="Vista del curso virtual."
+  />
   <BaseCard>
-    <p class="text-gray-600">Placeholder del detalle.</p>
+    <p class="text-gray-600">
+      Placeholder del detalle.
+    </p>
   </BaseCard>
 </template>
 

@@ -3,12 +3,21 @@
     <div class="justify-center items-center w-full bg-white rounded-md shadow lg:flex md:mt-0 max-w-md xl:p-0">
       <div class="p-6 w-full sm:p-8 lg:p-8">
         <div class="mb-4">
-          <img src="/logo-primary.svg" class="mb-1" alt="LMS" />
-          <p class="mb-6">Por favor ingresa tus credenciales.</p>
+          <img
+            src="/logo-primary.svg"
+            class="mb-1"
+            alt="LMS"
+          >
+          <p class="mb-6">
+            Por favor ingresa tus credenciales.
+          </p>
         </div>
         <form @submit.prevent="onSubmit">
           <div class="mb-3">
-            <label for="email" class="inline-block mb-2">Email</label>
+            <label
+              for="email"
+              class="inline-block mb-2"
+            >Email</label>
             <input
               id="email"
               v-model="form.email"
@@ -16,10 +25,13 @@
               class="border border-gray-300 text-gray-900 rounded focus:ring-indigo-600 focus:border-indigo-600 block w-full p-2 px-3"
               placeholder="Email"
               required
-            />
+            >
           </div>
           <div class="mb-5">
-            <label for="password" class="inline-block mb-2">Password</label>
+            <label
+              for="password"
+              class="inline-block mb-2"
+            >Password</label>
             <input
               id="password"
               v-model="form.password"
@@ -27,9 +39,14 @@
               class="border border-gray-300 text-gray-900 rounded focus:ring-indigo-600 focus:border-indigo-600 block w-full p-2 px-3"
               placeholder="********"
               required
-            />
+            >
           </div>
-          <p v-if="error" class="text-red-600 text-sm mb-3">{{ error }}</p>
+          <p
+            v-if="error"
+            class="text-red-600 text-sm mb-3"
+          >
+            {{ error }}
+          </p>
           <div class="grid">
             <button
               type="submit"
@@ -40,7 +57,12 @@
             </button>
           </div>
           <div class="flex justify-between mt-4 text-sm">
-            <RouterLink to="/forgot-password" class="text-indigo-600">Olvidaste tu password?</RouterLink>
+            <RouterLink
+              to="/forgot-password"
+              class="text-indigo-600"
+            >
+              Olvidaste tu password?
+            </RouterLink>
           </div>
         </form>
       </div>

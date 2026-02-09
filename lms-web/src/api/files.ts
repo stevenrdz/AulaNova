@@ -9,5 +9,7 @@ export const filesApi = {
     original_name: string
     mime_type: string
     size: number
-  }) => api.post('/files/complete', payload)
+  }) => api.post('/files/complete', payload),
+  download: (id: number, params?: { disposition?: 'attachment' | 'inline'; filename?: string }) =>
+    api.get(`/files/${id}/download`, { params })
 }

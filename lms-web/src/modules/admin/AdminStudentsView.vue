@@ -1,7 +1,12 @@
 <template>
-  <PageHeader title="Estudiantes" subtitle="Gestion de estudiantes y matriculas.">
+  <PageHeader
+    title="Estudiantes"
+    subtitle="Gestion de estudiantes y matriculas."
+  >
     <template #actions>
-      <BaseButton @click="openCreate">Crear estudiante</BaseButton>
+      <BaseButton @click="openCreate">
+        Crear estudiante
+      </BaseButton>
     </template>
   </PageHeader>
 
@@ -11,16 +16,32 @@
         <table class="text-left w-full whitespace-nowrap">
           <thead class="bg-gray-200 text-gray-700">
             <tr class="border-gray-300 border-b">
-              <th class="px-6 py-3">Nombre</th>
-              <th class="px-6 py-3">Email</th>
-              <th class="px-6 py-3">Estado</th>
-              <th class="px-6 py-3">Acciones</th>
+              <th class="px-6 py-3">
+                Nombre
+              </th>
+              <th class="px-6 py-3">
+                Email
+              </th>
+              <th class="px-6 py-3">
+                Estado
+              </th>
+              <th class="px-6 py-3">
+                Acciones
+              </th>
             </tr>
           </thead>
           <tbody class="divide-y">
-            <tr v-for="student in students" :key="student.id" class="border-gray-300 border-b">
-              <td class="py-3 px-6">{{ student.first_name }} {{ student.last_name }}</td>
-              <td class="py-3 px-6">{{ student.email }}</td>
+            <tr
+              v-for="student in students"
+              :key="student.id"
+              class="border-gray-300 border-b"
+            >
+              <td class="py-3 px-6">
+                {{ student.first_name }} {{ student.last_name }}
+              </td>
+              <td class="py-3 px-6">
+                {{ student.email }}
+              </td>
               <td class="py-3 px-6">
                 <span
                   class="px-2 py-1 text-sm rounded-full"
@@ -30,15 +51,35 @@
                 </span>
               </td>
               <td class="py-3 px-6 flex gap-2">
-                <BaseButton variant="secondary" @click="openEdit(student)">Editar</BaseButton>
-                <BaseButton variant="secondary" @click="removeStudent(student)">Eliminar</BaseButton>
+                <BaseButton
+                  variant="secondary"
+                  @click="openEdit(student)"
+                >
+                  Editar
+                </BaseButton>
+                <BaseButton
+                  variant="secondary"
+                  @click="removeStudent(student)"
+                >
+                  Eliminar
+                </BaseButton>
               </td>
             </tr>
             <tr v-if="!loading && students.length === 0">
-              <td colspan="4" class="py-6 px-6 text-center text-gray-500">Sin estudiantes.</td>
+              <td
+                colspan="4"
+                class="py-6 px-6 text-center text-gray-500"
+              >
+                Sin estudiantes.
+              </td>
             </tr>
             <tr v-if="loading">
-              <td colspan="4" class="py-6 px-6 text-center text-gray-500">Cargando...</td>
+              <td
+                colspan="4"
+                class="py-6 px-6 text-center text-gray-500"
+              >
+                Cargando...
+              </td>
             </tr>
           </tbody>
         </table>
@@ -46,28 +87,59 @@
     </div>
   </div>
 
-  <BaseModal v-model="showModal" :title="modalTitle">
-    <form class="space-y-4" @submit.prevent="saveStudent">
+  <BaseModal
+    v-model="showModal"
+    :title="modalTitle"
+  >
+    <form
+      class="space-y-4"
+      @submit.prevent="saveStudent"
+    >
       <div>
         <label class="inline-block mb-2">Nombre</label>
-        <input v-model="form.first_name" class="border border-gray-300 rounded p-2 w-full" required />
+        <input
+          v-model="form.first_name"
+          class="border border-gray-300 rounded p-2 w-full"
+          required
+        >
       </div>
       <div>
         <label class="inline-block mb-2">Apellido</label>
-        <input v-model="form.last_name" class="border border-gray-300 rounded p-2 w-full" required />
+        <input
+          v-model="form.last_name"
+          class="border border-gray-300 rounded p-2 w-full"
+          required
+        >
       </div>
       <div>
         <label class="inline-block mb-2">Email</label>
-        <input v-model="form.email" type="email" class="border border-gray-300 rounded p-2 w-full" required />
+        <input
+          v-model="form.email"
+          type="email"
+          class="border border-gray-300 rounded p-2 w-full"
+          required
+        >
       </div>
       <div>
         <label class="inline-block mb-2">Password</label>
-        <input v-model="form.password" type="password" class="border border-gray-300 rounded p-2 w-full" :required="!editing" />
+        <input
+          v-model="form.password"
+          type="password"
+          class="border border-gray-300 rounded p-2 w-full"
+          :required="!editing"
+        >
       </div>
     </form>
     <template #footer>
-      <BaseButton variant="secondary" @click="showModal = false">Cancelar</BaseButton>
-      <BaseButton @click="saveStudent">Guardar</BaseButton>
+      <BaseButton
+        variant="secondary"
+        @click="showModal = false"
+      >
+        Cancelar
+      </BaseButton>
+      <BaseButton @click="saveStudent">
+        Guardar
+      </BaseButton>
     </template>
   </BaseModal>
 </template>

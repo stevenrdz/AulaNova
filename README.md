@@ -53,11 +53,18 @@ docker compose -f docker-compose.dev.yml exec -T lms-api php bin/console messeng
   - Tracking: `route`, `course_id`, `timestamp`.
   - Imports: `file_id` (después de `/files/complete`).
 - Uploads a MinIO: el `presign` devuelve host `minio`; la subida debe hacerse dentro del contenedor (`docker compose exec -T ... curl`).
+- Uploads desde browser: configurar `MINIO_PUBLIC_ENDPOINT` (ej: `http://localhost:9000`) para que el presign use host accesible.
 
 ## Ultima sesion (2026-02-09)
 - Swagger UI corregido (Twig/Asset) y accesible en `/api/docs`.
 - Tracking: resumen admin/teacher con filtros (query `from`, `to`, `course_id`, `user_id`).
 - Files: URL firmada GET vía `/files/{id}/download` + política MinIO privada.
+- Admin: validaciones y helper texts en Assessments (quizzes/preguntas/intentos/respuestas).
+- Frontend teacher: filtros, analiticas y acciones masivas en entregas.
+- Admin: vista previa del logo con URL firmada cuando hay file_id disponible.
+- Sidebar: logo usa URL firmada si hay file_id en institution.
+- Frontend: dependencias actualizadas por `npm audit fix --force` (Vite ^7.3.1, plugin-vue ^6.0.4).
+- Frontend: ESLint TS/Vue configurado y auto-fix aplicado.
 - Frontend apuntando a API en `http://localhost:8000`.
 - Smoke tests OK: auth/users/structure/virtual/actividades/tracking.
 - Deprecaciones resueltas (Url requireTld y eraseCredentials).
@@ -69,8 +76,19 @@ docker compose -f docker-compose.dev.yml exec -T lms-api php bin/console messeng
 - Docs: OpenAPI `docs/openapi.yaml` con ejemplos completos en schemas principales.
 - Tracking: resumen admin/teacher incluye `by_route` (accesos por ruta).
 - Files: endpoint `/files/{id}/stream` agregado.
-- Tests: phpunit OK (4 tests).
+- Tests: phpunit OK (5 tests). ESLint frontend OK (sin errores ni warnings).
 - Fixtures: recargadas con `doctrine:fixtures:load --no-interaction`.
+- Frontend: CRUDs admin de Structure/Virtual/Imports implementados.
+- Frontend: CRUDs admin de Assessments (quizzes/preguntas/intentos/respuestas).
+- Frontend: toasts globales agregados.
+- Frontend: teacher dashboard + cursos/detalle con anuncios/actividades y quizzes.
+- Frontend: student cursos + detalle con tracking de tiempo.
+- Backend: GET de cursos/anuncios/actividades/quizzes habilitado para estudiantes.
+- Frontend: teacher gestion de evaluaciones (quizzes + preguntas).
+- Frontend: student flujo de quiz (intentos, respuestas, finalizacion, puntaje).
+- Backend: GET de preguntas para estudiantes (sin `correct_option`).
+- Backend: entregas de actividades (submissions) con calificacion y feedback.
+  - Frontend: entregas con adjuntos (presign + complete) y descarga (student/teacher).
 
 ## Pendientes (especificos)
 - Backend: auth/users/structure/virtual/assessments/imports completado.
@@ -79,12 +97,13 @@ docker compose -f docker-compose.dev.yml exec -T lms-api php bin/console messeng
 - Backend/Messenger: correr worker `messenger:consume` en entorno/infra de producción.
 - Backend/Docs: OpenAPI detallado por módulo, DTOs/validaciones/serializer groups completos.
 - Backend/Tests: unit/integration + fixtures adicionales.
-- Frontend/Admin: CRUDs de Structure/Virtual/Assessments/Imports con tablas, filtros, modales y paginación.
-- Frontend/Teacher: cursos, detalle, anuncios, actividades, evaluaciones.
-- Frontend/Student: cursos con filtros, detalle con restricciones, tiempo de conexión por curso/total.
-- Frontend/UX: estados de carga/error, toasts, confirmaciones, accesibilidad.
 - DevOps/Prod: dockerfiles prod, envs, migraciones, backups, despliegue en hosting del cliente.
 - Docs: ADRs, diagrama general, flujo de archivos/MinIO y SMTP.
+
+## Credenciales (DEV)
+- admin@lms.local / Admin123!
+- teacher@lms.local / Teacher123!
+- student@lms.local / Student123!
 ## Tests
 ```bash
 cd devops

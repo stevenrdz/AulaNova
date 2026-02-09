@@ -1,30 +1,99 @@
 <template>
-  <PageHeader title="Configuracion institucional" subtitle="Logo y color principal." />
+  <PageHeader
+    title="Configuracion institucional"
+    subtitle="Logo y color principal."
+  />
 
   <BaseCard>
     <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
       <div>
         <label class="inline-block mb-2">Logo institucional</label>
-        <input type="file" accept="image/*" @change="onFileChange" />
-        <p class="text-sm text-gray-500 mt-2">Se sube a MinIO via presign.</p>
-        <div v-if="previewUrl" class="mt-4">
-          <img :src="previewUrl" alt="Logo preview" class="h-16" />
+        <input
+          type="file"
+          accept="image/*"
+          @change="onFileChange"
+        >
+        <p class="text-sm text-gray-500 mt-2">
+          Se sube a MinIO via presign.
+        </p>
+        <div class="mt-2 flex flex-wrap gap-2">
+          <BaseButton
+            variant="secondary"
+            :disabled="!form.logo_url || loadingLogoPreview"
+            @click="resolveLogoPreview"
+          >
+            {{ loadingLogoPreview ? 'Cargando...' : 'Cargar vista previa' }}
+          </BaseButton>
+          <BaseButton
+            variant="secondary"
+            :disabled="!previewUrl"
+            @click="previewUrl = null"
+          >
+            Ocultar
+          </BaseButton>
         </div>
-        <p v-if="uploading" class="text-sm text-gray-600 mt-2">Subiendo...</p>
+        <div
+          v-if="previewUrl"
+          class="mt-4"
+        >
+          <img
+            :src="previewUrl"
+            alt="Logo preview"
+            class="h-16"
+          >
+        </div>
+        <p
+          v-if="logoNotice"
+          class="text-xs text-gray-500 mt-2"
+        >
+          {{ logoNotice }}
+        </p>
+        <p
+          v-if="uploading"
+          class="text-sm text-gray-600 mt-2"
+        >
+          Subiendo...
+        </p>
       </div>
       <div>
         <label class="inline-block mb-2">Color principal</label>
-        <input v-model="form.primary_color" type="color" class="h-10 w-24" />
-        <p class="text-sm text-gray-500 mt-2">Se guarda como CSS var.</p>
+        <input
+          v-model="form.primary_color"
+          type="color"
+          class="h-10 w-24"
+        >
+        <p class="text-sm text-gray-500 mt-2">
+          Se guarda como CSS var.
+        </p>
       </div>
     </div>
 
     <div class="mt-6 flex gap-2">
-      <BaseButton @click="saveSettings" :disabled="saving">Guardar</BaseButton>
-      <BaseButton variant="secondary" @click="loadSettings">Recargar</BaseButton>
+      <BaseButton
+        :disabled="saving"
+        @click="saveSettings"
+      >
+        Guardar
+      </BaseButton>
+      <BaseButton
+        variant="secondary"
+        @click="loadSettings"
+      >
+        Recargar
+      </BaseButton>
     </div>
-    <p v-if="message" class="text-green-700 text-sm mt-3">{{ message }}</p>
-    <p v-if="error" class="text-red-600 text-sm mt-3">{{ error }}</p>
+    <p
+      v-if="message"
+      class="text-green-700 text-sm mt-3"
+    >
+      {{ message }}
+    </p>
+    <p
+      v-if="error"
+      class="text-red-600 text-sm mt-3"
+    >
+      {{ error }}
+    </p>
   </BaseCard>
 </template>
 
@@ -46,6 +115,8 @@ const uploading = ref(false)
 const saving = ref(false)
 const message = ref('')
 const error = ref('')
+const loadingLogoPreview = ref(false)
+const logoNotice = ref('')
 
 const applyColor = (color: string) => {
   document.documentElement.style.setProperty('--primary-color', color)
@@ -59,9 +130,46 @@ const loadSettings = async () => {
     form.logo_url = response.data.data.logo_url || ''
     form.primary_color = response.data.data.primary_color || '#624bff'
     applyColor(form.primary_color)
+    logoNotice.value = ''
+    previewUrl.value = null
   } catch (err: any) {
     error.value = err?.response?.data?.message || 'No se pudieron cargar ajustes.'
   }
+}
+
+const resolveLogoPreview = async () => {
+  if (!form.logo_url) {
+    previewUrl.value = null
+    logoNotice.value = ''
+    return
+  }
+
+  if (form.logo_url.startsWith('http')) {
+    previewUrl.value = form.logo_url
+    logoNotice.value = ''
+    return
+  }
+
+  const numericId = Number(form.logo_url)
+  if (!Number.isNaN(numericId) && String(numericId) === form.logo_url.trim()) {
+    loadingLogoPreview.value = true
+    logoNotice.value = ''
+    try {
+      const response = await filesApi.download(numericId, { disposition: 'inline' })
+      previewUrl.value = response.data.data?.url || null
+      if (!previewUrl.value) {
+        logoNotice.value = 'No se pudo generar la vista previa.'
+      }
+    } catch (err: any) {
+      logoNotice.value = err?.response?.data?.message || 'No se pudo cargar la vista previa.'
+    } finally {
+      loadingLogoPreview.value = false
+    }
+    return
+  }
+
+  previewUrl.value = null
+  logoNotice.value = 'Logo guardado en storage. Para ver vista previa, vuelve a subir el logo.'
 }
 
 const onFileChange = async (event: Event) => {
@@ -72,6 +180,7 @@ const onFileChange = async (event: Event) => {
   previewUrl.value = URL.createObjectURL(file)
   uploading.value = true
   error.value = ''
+  logoNotice.value = ''
 
   try {
     const presign = await filesApi.presign({
@@ -102,6 +211,10 @@ const onFileChange = async (event: Event) => {
     })
 
     form.logo_url = complete.data.data.key
+    if (complete.data.data.id) {
+      const preview = await filesApi.download(complete.data.data.id, { disposition: 'inline' })
+      previewUrl.value = preview.data.data?.url || previewUrl.value
+    }
   } catch (err: any) {
     error.value = err?.response?.data?.message || 'No se pudo subir el logo.'
   } finally {

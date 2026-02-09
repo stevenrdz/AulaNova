@@ -7,6 +7,7 @@ use App\DTO\CursoVirtualUpdateRequest;
 use App\Entity\Curso;
 use App\Entity\CursoVirtual;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Bundle\SecurityBundle\Attribute\Security;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
@@ -14,7 +15,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 #[Route('/virtual/cursos')]
-#[IsGranted('ROLE_TEACHER')]
+#[Security("is_granted('ROLE_TEACHER') or is_granted('ROLE_STUDENT')")]
 class CursoVirtualController extends ApiController
 {
     public function __construct(private readonly EntityManagerInterface $entityManager)
@@ -73,6 +74,7 @@ class CursoVirtualController extends ApiController
     }
 
     #[Route('', methods: ['POST'])]
+    #[IsGranted('ROLE_TEACHER')]
     public function create(Request $request, ValidatorInterface $validator): JsonResponse
     {
         $data = json_decode($request->getContent(), true) ?? [];
@@ -99,6 +101,7 @@ class CursoVirtualController extends ApiController
     }
 
     #[Route('/{id}', methods: ['PUT'])]
+    #[IsGranted('ROLE_TEACHER')]
     public function update(int $id, Request $request, ValidatorInterface $validator): JsonResponse
     {
         $item = $this->entityManager->getRepository(CursoVirtual::class)->find($id);
@@ -133,6 +136,7 @@ class CursoVirtualController extends ApiController
     }
 
     #[Route('/{id}', methods: ['DELETE'])]
+    #[IsGranted('ROLE_TEACHER')]
     public function delete(int $id): JsonResponse
     {
         $item = $this->entityManager->getRepository(CursoVirtual::class)->find($id);

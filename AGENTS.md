@@ -19,19 +19,40 @@
 - DB: migracion agregada para `time_tracking_route_daily`.
 - Tests: phpunit OK luego de migracion en entorno test.
 - Fixtures: recargadas (purge) en entorno dev.
+- Frontend admin: CRUDs Structure (sede-jornada, niveles, periodos, asignaturas, carreras, cursos).
+- Frontend admin: CRUDs Virtual (cursos virtuales) e Imports (batches + detalle).
+- Frontend admin: Assessments (quizzes, preguntas, intentos, respuestas).
+- UX: toasts globales para errores (frontend).
+- Frontend teacher: dashboard con resumen tracking; cursos + detalle con anuncios/actividades y quizzes.
+- Frontend student: cursos con tiempo de actividad y detalle (anuncios/actividades/quizzes).
+- Backend: lectura de cursos/anuncios/actividades/quizzes permitida para estudiantes (GET).
+- Seed: usuario `student@lms.local` creado para pruebas.
+- Frontend teacher: gestión de evaluaciones (quizzes + preguntas) desde vista docente.
+- Frontend student: flujo de quiz (iniciar, responder, finalizar, ver puntaje).
+- Backend: lectura de preguntas para estudiantes (sin `correct_option`).
+- Backend: entregas de actividades (submissions) con calificacion y feedback.
+- Frontend: entregas basicas (student envia, teacher califica).
+- Files: presign ahora usa `MINIO_PUBLIC_ENDPOINT` para uploads desde navegador.
+- Frontend student: subida real de adjuntos en entregas (presign + PUT + complete).
+- Frontend teacher/student: descarga de adjuntos en entregas.
+- Frontend teacher: acciones masivas, filtros y analiticas en entregas.
+- Admin: vista previa del logo con URL firmada cuando hay file_id disponible.
+- Sidebar: logo usa URL firmada si hay file_id en institution.
+- Frontend: Vite actualizado a ^7.3.1 y plugin-vue ^6.0.4 por audit fix.
+- Frontend: ESLint TS/Vue configurado y auto-fix aplicado.
 
 ## Pending - Backend (especifico)
 - Tracking: revisar retencion/limpieza de data diaria si aplica.
 - Messenger: correr worker `messenger:consume` en entorno/infra de producción.
 - Docs: OpenAPI detallado, DTOs/validaciones/serializer groups completos.
 - Tests: unit/integration + fixtures adicionales.
+ 
+## Tests
+- PHPUnit: OK (5 tests, 24 assertions).
+- Frontend: ESLint OK (sin errores ni warnings).
 
 ## Pending - Frontend (especifico)
-- Admin: CRUDs Structure/Virtual/Assessments/Imports con tablas, filtros, modales, paginación.
-- Teacher: cursos, detalle, anuncios, actividades, evaluaciones.
-- Student: cursos con filtros, detalle con restricciones, tiempo de conexión por curso/total.
-- UX: estados de carga/error, toasts, confirmaciones, accesibilidad.
-- Files: consumo de descargas/URLs firmadas para adjuntos y logo.
+- Ninguno por ahora.
 
 ## Pending - DevOps/Docs
 - Dockerfiles prod, variables finales, migraciones, backups.
@@ -43,6 +64,7 @@
 - Las rutas NO llevan prefijo `/api` (ej: `/auth/login`, `/users`, `/structure/*`, `/virtual/*`, `/assessments/*`, `/files/*`, `/imports/*`, `/tracking/*`).
 - DTOs usan snake_case y nombres específicos (ver README). En pruebas E2E fallaba por usar camelCase y campos antiguos.
 - Uploads a MinIO: el `presign` devuelve host `minio`, por lo que la subida debe hacerse dentro del contenedor (`docker compose exec -T ... curl`).
+- Entregas: requiere `MINIO_PUBLIC_ENDPOINT` para adjuntos desde browser.
 
 ## Ultima sesion (2026-02-09)
 - Swagger UI disponible en `/api/docs`.
@@ -58,6 +80,11 @@
 - Files: endpoint `/files/{id}/stream` agregado.
 - Tests: phpunit OK (4 tests).
 - Fixtures: `doctrine:fixtures:load --no-interaction` ejecutado.
+- Frontend: CRUDs admin de Structure/Virtual/Imports implementados.
+- Frontend: CRUDs admin de Assessments (quizzes/preguntas/intentos/respuestas).
+- Frontend: toasts globales agregados.
+- Frontend: teacher dashboard + cursos/detalle con anuncios/actividades y quizzes.
+- Frontend: student cursos + detalle con tracking de tiempo.
 
 ## Useful commands
 - docker compose --env-file devops/.env -f devops/docker-compose.dev.yml up --build
@@ -71,3 +98,4 @@
 ## Default credentials
 - admin@lms.local / Admin123!
 - teacher@lms.local / Teacher123!
+- student@lms.local / Student123!
