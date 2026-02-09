@@ -45,6 +45,21 @@ Notas:
 - En producción, correr el worker como servicio (systemd/supervisor/k8s).
 - Ajustar `MESSENGER_TRANSPORT_DSN` y `MESSENGER_FAILURE_TRANSPORT_DSN` para ambiente prod.
 - Monitorear `messenger:failed:show` y alertas si hay reintentos fallidos.
+Ejemplo (systemd):
+```ini
+[Unit]
+Description=LMS Messenger Worker
+After=network.target
+
+[Service]
+User=www-data
+WorkingDirectory=/var/www/lms-api
+ExecStart=/usr/bin/php bin/console messenger:consume async -vv --time-limit=3600 --memory-limit=256M
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+```
 
 ## Observaciones de API (importante para pruebas)
 - Las rutas NO llevan prefijo `/api` (ej: `/auth/login`, `/users`, `/structure/*`, `/virtual/*`, `/assessments/*`, `/files/*`, `/imports/*`, `/tracking/*`).

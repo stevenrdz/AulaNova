@@ -42,7 +42,6 @@
 - Frontend: ESLint TS/Vue configurado y auto-fix aplicado.
 
 ## Pending - Backend (especifico)
-- Messenger: correr worker `messenger:consume` en entorno/infra de producción (systemd/supervisor/k8s).
 - Tests: unit/integration + fixtures adicionales.
  
 ## Tests
@@ -81,6 +80,7 @@
 - OpenAPI: Virtual con schemas request + 422 Validation.
 - OpenAPI: Assessments con schemas request + 422 Validation.
 - OpenAPI: Files + Tracking heartbeat con schemas request/response + 422 Validation.
+- Messenger: guia prod agregada (systemd ejemplo) en README.
 - API docs: ejemplos añadidos para users/teachers/admins y PUTs de virtual.
 - API docs: estructura (Structure) reescrita y respuestas unificadas.
 - OpenAPI: ejemplos añadidos en schemas principales.
