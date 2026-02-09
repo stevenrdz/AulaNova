@@ -79,6 +79,7 @@ docker compose -f docker-compose.dev.yml exec -T lms-api php bin/console messeng
 - Files: endpoint `/files/{id}/stream` agregado.
 - Tests: phpunit OK (5 tests). ESLint frontend OK (sin errores ni warnings).
 - Fixtures: recargadas con `doctrine:fixtures:load --no-interaction`.
+- Tests: phpunit OK tras recarga de fixtures.
 - Frontend: CRUDs admin de Structure/Virtual/Imports implementados.
 - Frontend: CRUDs admin de Assessments (quizzes/preguntas/intentos/respuestas).
 - Frontend: toasts globales agregados.
