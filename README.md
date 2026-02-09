@@ -1,0 +1,92 @@
+﻿# LMS Platform (Symfony + Vue 3)
+
+Monorepo con dos proyectos separados: API en Symfony 7 y SPA en Vue 3 (DashUI Tailwind). Pensado para hosting del cliente y desarrollo local con Docker.
+
+## Estructura
+- `lms-api/`: API Symfony (JWT + RBAC + PostgreSQL + Redis + MinIO)
+- `lms-web/`: SPA Vue 3 (DashUI + Tailwind + Pinia + Router)
+- `devops/`: Docker Compose para DEV
+- `docs/`: Diagramas, decisiones y OpenAPI
+  - `docs/api.md`: Documentación detallada de endpoints (español)
+  - `docs/openapi.yaml`: OpenAPI manual basado en el comportamiento actual
+
+## Quickstart (DEV)
+1. Copia `.env.example` a `.env` y ajusta si es necesario.
+2. Levanta el stack:
+
+```bash
+cd devops
+docker compose --env-file ../.env -f docker-compose.dev.yml up --build
+```
+
+Servicios locales:
+- API: http://localhost:8000
+- OpenAPI: http://localhost:8000/api/docs
+- Web: http://localhost:5174 (configurable en .env)
+- MailHog: http://localhost:8025
+- MinIO Console: http://localhost:9001
+
+Lee los README de `lms-api/` y `lms-web/` para pasos específicos.
+
+## Worker (Messenger)
+Para procesar colas async:
+
+```bash
+cd devops
+docker compose -f docker-compose.dev.yml exec -T lms-api php bin/console messenger:consume async -vv
+```
+
+Retry/failed:
+```bash
+docker compose -f docker-compose.dev.yml exec -T lms-api php bin/console messenger:failed:show
+docker compose -f docker-compose.dev.yml exec -T lms-api php bin/console messenger:failed:retry
+```
+
+## Observaciones de API (importante para pruebas)
+- Las rutas NO llevan prefijo `/api` (ej: `/auth/login`, `/users`, `/structure/*`, `/virtual/*`, `/assessments/*`, `/files/*`, `/imports/*`, `/tracking/*`).
+- Login devuelve `access_token` y `refresh_token` (snake_case).
+- Los DTOs usan snake_case y nombres específicos (ejemplos):
+  - Users: `first_name`, `last_name`, `role`.
+  - Curso: `capacity`, `start_date`, `end_date`, `periodo_id`, `teacher_id`, `sede_jornada_id`, `carrera_id`, `asignatura_id`.
+  - Actividad: `due_at` (datetime válido), `file_id`, `attachment_ids`, `youtube_url`.
+  - Quiz: `start_at`, `end_at`, `time_limit_minutes`.
+  - Tracking: `route`, `course_id`, `timestamp`.
+  - Imports: `file_id` (después de `/files/complete`).
+- Uploads a MinIO: el `presign` devuelve host `minio`; la subida debe hacerse dentro del contenedor (`docker compose exec -T ... curl`).
+
+## Ultima sesion (2026-02-09)
+- Swagger UI corregido (Twig/Asset) y accesible en `/api/docs`.
+- Tracking: resumen admin/teacher con filtros (query `from`, `to`, `course_id`, `user_id`).
+- Files: URL firmada GET vía `/files/{id}/download` + política MinIO privada.
+- Frontend apuntando a API en `http://localhost:8000`.
+- Smoke tests OK: auth/users/structure/virtual/actividades/tracking.
+- Deprecaciones resueltas (Url requireTld y eraseCredentials).
+- Docs: validaciones detalladas de Tracking y Files en docs/api.md.
+- Docs: Auth/Users/Institution/Structure con validaciones en docs/api.md.
+- Docs: OpenAPI YAML corregido y sincronizado con rutas de answers y sede-jornadas.
+- Docs: ejemplos agregados para `/users/teachers`, `/users/admins`, PUT `/virtual/cursos/{id}` y PUT `/virtual/anuncios/{id}`.
+- Docs: se estandarizaron respuestas JSON en seccion Structure (PUT/DELETE) de `docs/api.md`.
+- Docs: OpenAPI `docs/openapi.yaml` con ejemplos completos en schemas principales.
+- Tracking: resumen admin/teacher incluye `by_route` (accesos por ruta).
+- Files: endpoint `/files/{id}/stream` agregado.
+- Tests: phpunit OK (4 tests).
+- Fixtures: recargadas con `doctrine:fixtures:load --no-interaction`.
+
+## Pendientes (especificos)
+- Backend: auth/users/structure/virtual/assessments/imports completado.
+- Backend/Tracking: consolidación diaria y reportes adicionales de accesos.
+- Backend/Files: endpoint de stream directo (opcional).
+- Backend/Messenger: correr worker `messenger:consume` en entorno/infra de producción.
+- Backend/Docs: OpenAPI detallado por módulo, DTOs/validaciones/serializer groups completos.
+- Backend/Tests: unit/integration + fixtures adicionales.
+- Frontend/Admin: CRUDs de Structure/Virtual/Assessments/Imports con tablas, filtros, modales y paginación.
+- Frontend/Teacher: cursos, detalle, anuncios, actividades, evaluaciones.
+- Frontend/Student: cursos con filtros, detalle con restricciones, tiempo de conexión por curso/total.
+- Frontend/UX: estados de carga/error, toasts, confirmaciones, accesibilidad.
+- DevOps/Prod: dockerfiles prod, envs, migraciones, backups, despliegue en hosting del cliente.
+- Docs: ADRs, diagrama general, flujo de archivos/MinIO y SMTP.
+## Tests
+```bash
+cd devops
+docker compose --env-file ../.env -f docker-compose.dev.yml exec -T lms-api php vendor/bin/phpunit
+```

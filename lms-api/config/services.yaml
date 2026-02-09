@@ -1,0 +1,30 @@
+parameters:
+  app.minio.bucket: '%env(MINIO_BUCKET)%'
+  app.jwt_ttl: '%env(int:JWT_TTL)%'
+  app.refresh_ttl: '%env(int:REFRESH_TOKEN_TTL)%'
+
+services:
+  _defaults:
+    autowire: true
+    autoconfigure: true
+
+  App\:
+    resource: '../src/'
+    exclude:
+      - '../src/DependencyInjection/'
+      - '../src/Entity/'
+      - '../src/Kernel.php'
+      - '../src/Tests/'
+
+  aws.s3_client:
+    class: Aws\S3\S3Client
+    arguments:
+      - version: 'latest'
+        region: '%env(MINIO_REGION)%'
+        endpoint: '%env(MINIO_ENDPOINT)%'
+        use_path_style_endpoint: '%env(bool:MINIO_USE_PATH_STYLE)%'
+        credentials:
+          key: '%env(MINIO_ACCESS_KEY)%'
+          secret: '%env(MINIO_SECRET_KEY)%'
+
+  Aws\S3\S3Client: '@aws.s3_client'

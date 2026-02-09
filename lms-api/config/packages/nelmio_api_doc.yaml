@@ -1,0 +1,27 @@
+nelmio_api_doc:
+  documentation:
+    info:
+      title: LMS API
+      description: API para LMS (Symfony + Vue). Documentación en español.
+      version: 0.1.0
+    components:
+      securitySchemes:
+        bearerAuth:
+          type: http
+          scheme: bearer
+          bearerFormat: JWT
+    security:
+      - bearerAuth: []
+  areas:
+    default:
+      path_patterns:
+        - ^/auth
+        - ^/users
+        - ^/institution
+        - ^/structure
+        - ^/virtual
+        - ^/assessments
+        - ^/imports
+        - ^/files
+        - ^/tracking
+        - ^/health

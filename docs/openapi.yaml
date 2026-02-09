@@ -1,0 +1,2766 @@
+﻿openapi: 3.0.3
+info:
+  title: LMS API
+  version: 0.1.0
+  description: OpenAPI generado manualmente basado en comportamiento actual.
+servers:
+  - url: http://localhost:8000
+security:
+  - bearerAuth: []
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    ErrorMessage:
+      type: object
+      properties:
+        message:
+          type: string
+      required: [message]
+      example:
+        message: Registro no encontrado.
+    ValidationError:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Validation failed
+        errors:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: string
+      required: [message, errors]
+      example:
+        message: Validation failed
+        errors:
+          email:
+            - Email invalido
+    PaginationMeta:
+      type: object
+      properties:
+        page: { type: integer }
+        limit: { type: integer }
+        total: { type: integer }
+        total_pages: { type: integer }
+      required: [page, limit, total, total_pages]
+      example:
+        page: 1
+        limit: 20
+        total: 1
+        total_pages: 1
+    User:
+      type: object
+      properties:
+        id: { type: integer, example: 1 }
+        email: { type: string, example: admin@lms.local }
+        first_name: { type: string, example: Admin }
+        last_name: { type: string, example: LMS }
+        roles:
+          type: array
+          items: { type: string }
+          example: [ROLE_ADMIN]
+        is_active: { type: boolean, example: true }
+      required: [id, email, first_name, last_name, roles]
+      example:
+        id: 1
+        email: admin@lms.local
+        first_name: Admin
+        last_name: LMS
+        roles: [ROLE_ADMIN]
+        is_active: true
+    AuthResponse:
+      type: object
+      properties:
+        access_token: { type: string }
+        refresh_token: { type: string }
+        user:
+          $ref: '#/components/schemas/User'
+      required: [access_token, refresh_token, user]
+      example:
+        access_token: jwt
+        refresh_token: refresh
+        user:
+          id: 1
+          email: admin@lms.local
+          first_name: Admin
+          last_name: LMS
+          roles: [ROLE_ADMIN]
+          is_active: true
+    SedeJornada:
+      type: object
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        is_active: { type: boolean }
+      required: [id, name, is_active]
+      example:
+        id: 1
+        name: Sede A
+        is_active: true
+    Nivel:
+      type: object
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        is_active: { type: boolean }
+      required: [id, name, is_active]
+      example:
+        id: 1
+        name: Pregrado
+        is_active: true
+    Periodo:
+      type: object
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        start_date: { type: string, format: date }
+        end_date: { type: string, format: date }
+      required: [id, name]
+      example:
+        id: 1
+        name: 2026-1
+        start_date: '2026-01-15'
+        end_date: '2026-06-30'
+    Carrera:
+      type: object
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        is_active: { type: boolean }
+      required: [id, name, is_active]
+      example:
+        id: 1
+        name: Ingenieria
+        is_active: true
+    Asignatura:
+      type: object
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        is_active: { type: boolean }
+      required: [id, name, is_active]
+      example:
+        id: 1
+        name: Programacion I
+        is_active: true
+    Curso:
+      type: object
+      properties:
+        id: { type: integer, example: 16 }
+        name: { type: string, example: Curso 1 }
+        capacity: { type: integer, nullable: true, example: 30 }
+        start_date: { type: string, format: date, nullable: true }
+        end_date: { type: string, format: date, nullable: true }
+        periodo:
+          allOf:
+            - $ref: '#/components/schemas/Periodo'
+        teacher:
+          type: object
+          properties:
+            id: { type: integer }
+            email: { type: string }
+            first_name: { type: string }
+            last_name: { type: string }
+        sede_jornada:
+          allOf:
+            - $ref: '#/components/schemas/SedeJornada'
+        carrera:
+          allOf:
+            - $ref: '#/components/schemas/Carrera'
+        asignatura:
+          allOf:
+            - $ref: '#/components/schemas/Asignatura'
+      required: [id, name]
+      example:
+        id: 1
+        name: Curso 1
+        capacity: 30
+        start_date: '2026-02-01'
+        end_date: '2026-06-01'
+        periodo:
+          id: 1
+          name: 2026-1
+          start_date: '2026-01-15'
+          end_date: '2026-06-30'
+        teacher:
+          id: 2
+          email: teacher@lms.local
+          first_name: Teacher
+          last_name: One
+        sede_jornada:
+          id: 1
+          name: Sede A
+          is_active: true
+        carrera:
+          id: 1
+          name: Ingenieria
+          is_active: true
+        asignatura:
+          id: 1
+          name: Programacion I
+          is_active: true
+    CursoVirtual:
+      type: object
+      properties:
+        id: { type: integer }
+        description: { type: string, nullable: true }
+        created_at: { type: string, format: date-time }
+        curso:
+          type: object
+          properties:
+            id: { type: integer }
+            name: { type: string }
+      required: [id, created_at, curso]
+      example:
+        id: 1
+        description: Desc
+        created_at: '2026-02-05 12:00:00'
+        curso:
+          id: 1
+          name: Curso 1
+    Anuncio:
+      type: object
+      properties:
+        id: { type: integer }
+        title: { type: string }
+        content: { type: string }
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time, nullable: true }
+        curso_virtual:
+          type: object
+          properties:
+            id: { type: integer }
+            curso_id: { type: integer }
+        created_by:
+          type: object
+          nullable: true
+          properties:
+            id: { type: integer }
+            email: { type: string }
+            first_name: { type: string }
+            last_name: { type: string }
+      required: [id, title, content, created_at, curso_virtual]
+      example:
+        id: 1
+        title: Bienvenida
+        content: Hola
+        created_at: '2026-02-05 12:00:00'
+        updated_at: null
+        curso_virtual:
+          id: 1
+          curso_id: 1
+        created_by:
+          id: 2
+          email: teacher@lms.local
+          first_name: Teacher
+          last_name: One
+    FileObject:
+      type: object
+      properties:
+        id: { type: integer }
+        key: { type: string }
+        bucket: { type: string }
+        original_name: { type: string }
+        mime_type: { type: string }
+        size: { type: integer }
+      required: [id, key, bucket, original_name, mime_type, size]
+      example:
+        id: 10
+        key: uploads/2026/02/abc.txt
+        bucket: lms
+        original_name: test.txt
+        mime_type: text/plain
+        size: 5
+    Actividad:
+      type: object
+      properties:
+        id: { type: integer }
+        type: { type: string, enum: [TEXT, FILE, VIDEO, TASK] }
+        title: { type: string }
+        content: { type: string, nullable: true }
+        youtube_url: { type: string, nullable: true }
+        is_graded: { type: boolean }
+        due_at: { type: string, format: date-time, nullable: true }
+        created_at: { type: string, format: date-time }
+        curso_virtual:
+          type: object
+          properties:
+            id: { type: integer }
+            curso_id: { type: integer }
+        file:
+          allOf:
+            - $ref: '#/components/schemas/FileObject'
+          nullable: true
+        attachments:
+          type: array
+          items:
+            $ref: '#/components/schemas/FileObject'
+      required: [id, type, title, is_graded, created_at, curso_virtual]
+      example:
+        id: 1
+        type: FILE
+        title: Actividad 1
+        content: Sube
+        youtube_url: null
+        is_graded: false
+        due_at: '2026-03-01 12:00:00'
+        created_at: '2026-02-05 12:00:00'
+        curso_virtual:
+          id: 1
+          curso_id: 1
+        file:
+          id: 10
+          key: uploads/2026/02/abc.txt
+          bucket: lms
+          original_name: test.txt
+          mime_type: text/plain
+          size: 5
+        attachments: []
+    Quiz:
+      type: object
+      properties:
+        id: { type: integer }
+        title: { type: string }
+        description: { type: string, nullable: true }
+        start_at: { type: string, format: date-time, nullable: true }
+        end_at: { type: string, format: date-time, nullable: true }
+        time_limit_minutes: { type: integer, nullable: true }
+        curso_virtual:
+          type: object
+          properties:
+            id: { type: integer }
+            curso_id: { type: integer }
+      required: [id, title, curso_virtual]
+      example:
+        id: 3
+        title: Quiz 1
+        description: null
+        start_at: '2026-02-05 00:00:00'
+        end_at: '2026-02-10 23:59:59'
+        time_limit_minutes: 30
+        curso_virtual:
+          id: 1
+          curso_id: 1
+    Question:
+      type: object
+      properties:
+        id: { type: integer }
+        type: { type: string, enum: [SINGLE, TEXT] }
+        prompt: { type: string }
+        options:
+          type: array
+          nullable: true
+          items: { type: string }
+        correct_option: { type: string, nullable: true }
+        quiz:
+          type: object
+          properties:
+            id: { type: integer }
+            curso_virtual_id: { type: integer }
+      required: [id, type, prompt, quiz]
+      example:
+        id: 5
+        type: SINGLE
+        prompt: 2+2?
+        options: ['3', '4']
+        correct_option: '4'
+        quiz:
+          id: 3
+          curso_virtual_id: 1
+    Attempt:
+      type: object
+      properties:
+        id: { type: integer }
+        started_at: { type: string, format: date-time }
+        finished_at: { type: string, format: date-time, nullable: true }
+        score: { type: number, nullable: true }
+        quiz:
+          type: object
+          properties:
+            id: { type: integer }
+            title: { type: string }
+        user:
+          type: object
+          properties:
+            id: { type: integer }
+            email: { type: string }
+            first_name: { type: string }
+            last_name: { type: string }
+      required: [id, started_at, quiz, user]
+      example:
+        id: 3
+        started_at: '2026-02-05 06:23:53'
+        finished_at: '2026-02-05 06:23:54'
+        score: 100
+        quiz:
+          id: 3
+          title: Quiz 1
+        user:
+          id: 30
+          email: student@lms.local
+          first_name: Student
+          last_name: One
+    Answer:
+      type: object
+      properties:
+        id: { type: integer }
+        answer_text: { type: string, nullable: true }
+        is_correct: { type: boolean, nullable: true }
+        attempt:
+          type: object
+          properties:
+            id: { type: integer }
+            quiz_id: { type: integer }
+            user_id: { type: integer }
+        question:
+          type: object
+          properties:
+            id: { type: integer }
+            type: { type: string }
+            prompt: { type: string }
+      required: [id, attempt, question]
+      example:
+        id: 5
+        answer_text: '4'
+        is_correct: true
+        attempt:
+          id: 3
+          quiz_id: 3
+          user_id: 30
+        question:
+          id: 5
+          type: SINGLE
+          prompt: 2+2?
+    ImportBatch:
+      type: object
+      properties:
+        id: { type: integer }
+        type: { type: string }
+        status: { type: string }
+        total_rows: { type: integer, nullable: true }
+        success_count: { type: integer, nullable: true }
+        error_count: { type: integer, nullable: true }
+        created_at: { type: string, format: date-time }
+        created_by:
+          type: object
+          properties:
+            id: { type: integer }
+            email: { type: string }
+            first_name: { type: string }
+            last_name: { type: string }
+        result_file:
+          allOf:
+            - $ref: '#/components/schemas/FileObject'
+          nullable: true
+      required: [id, type, status, created_at]
+      example:
+        id: 1
+        type: users
+        status: pending
+        total_rows: null
+        success_count: null
+        error_count: null
+        created_at: '2026-02-05 06:24:19'
+        created_by:
+          id: 1
+          email: admin@lms.local
+          first_name: Admin
+          last_name: LMS
+        result_file: null
+paths:
+  /auth/login:
+    post:
+      tags: [Auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email: { type: string, format: email }
+                password: { type: string }
+              required: [email, password]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorMessage' }
+        '429':
+          description: Rate limited
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorMessage' }
+  /auth/refresh:
+    post:
+      tags: [Auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                refresh_token: { type: string }
+              required: [refresh_token]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AuthResponse' }
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorMessage' }
+  /auth/logout:
+    post:
+      tags: [Auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                refresh_token: { type: string }
+              required: [refresh_token]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorMessage' }
+  /auth/change-password:
+    post:
+      tags: [Auth]
+      security: [bearerAuth: []]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                current_password: { type: string }
+                new_password: { type: string, minLength: 8 }
+              required: [current_password, new_password]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorMessage' }
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorMessage' }
+  /auth/forgot-password:
+    post:
+      tags: [Auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email: { type: string, format: email }
+              required: [email]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorMessage' }
+        '429':
+          description: Rate limited
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorMessage' }
+  /auth/reset-password:
+    post:
+      tags: [Auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email: { type: string, format: email }
+                otp: { type: string, minLength: 6, maxLength: 6 }
+                new_password: { type: string, minLength: 8 }
+              required: [email, otp, new_password]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorMessage' }
+  /users:
+    get:
+      tags: [Users]
+      security: [bearerAuth: []]
+      parameters:
+        - in: query
+          name: page
+          schema: { type: integer }
+        - in: query
+          name: limit
+          schema: { type: integer }
+        - in: query
+          name: q
+          schema: { type: string }
+        - in: query
+          name: is_active
+          schema: { type: boolean }
+        - in: query
+          name: role
+          schema: { type: string }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items: { $ref: '#/components/schemas/User' }
+                  meta: { $ref: '#/components/schemas/PaginationMeta' }
+    post:
+      tags: [Users]
+      security: [bearerAuth: []]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email: { type: string, format: email }
+                password: { type: string, minLength: 8 }
+                first_name: { type: string }
+                last_name: { type: string }
+                role: { type: string, enum: [ROLE_ADMIN, ROLE_TEACHER, ROLE_STUDENT] }
+              required: [email, password, first_name, last_name]
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: { $ref: '#/components/schemas/User' }
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorMessage' }
+  /users/teachers:
+    get:
+      tags: [Users]
+      security: [bearerAuth: []]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items: { $ref: '#/components/schemas/User' }
+                  meta: { $ref: '#/components/schemas/PaginationMeta' }
+  /users/admins:
+    get:
+      tags: [Users]
+      security: [bearerAuth: []]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items: { $ref: '#/components/schemas/User' }
+                  meta: { $ref: '#/components/schemas/PaginationMeta' }
+  /users/{id}:
+    put:
+      tags: [Users]
+      security: [bearerAuth: []]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email: { type: string, format: email }
+                password: { type: string, minLength: 8 }
+                first_name: { type: string }
+                last_name: { type: string }
+                role: { type: string, enum: [ROLE_ADMIN, ROLE_TEACHER, ROLE_STUDENT] }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: { $ref: '#/components/schemas/User' }
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorMessage' }
+    delete:
+      tags: [Users]
+      security: [bearerAuth: []]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorMessage' }
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorMessage' }
+  /institution:
+    get:
+      tags: [Institution]
+      security: [bearerAuth: []]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      logo_url: { type: string, nullable: true }
+                      primary_color: { type: string, nullable: true }
+    put:
+      tags: [Institution]
+      security: [bearerAuth: []]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                logo_url: { type: string, nullable: true }
+                primary_color: { type: string, nullable: true }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      logo_url: { type: string, nullable: true }
+                      primary_color: { type: string, nullable: true }
+  /health:
+    get:
+      tags: [Health]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status: { type: string }
+  /structure/sede-jornadas:
+    get:
+      tags: [Structure]
+      security: [bearerAuth: []]
+      parameters:
+        - in: query
+          name: page
+          schema: { type: integer }
+        - in: query
+          name: limit
+          schema: { type: integer }
+        - in: query
+          name: q
+          schema: { type: string }
+        - in: query
+          name: is_active
+          schema: { type: boolean }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items: { $ref: '#/components/schemas/SedeJornada' }
+                  meta: { $ref: '#/components/schemas/PaginationMeta' }
+    post:
+      tags: [Structure]
+      security: [bearerAuth: []]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name: { type: string, maxLength: 120 }
+                is_active: { type: boolean }
+              required: [name]
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: { $ref: '#/components/schemas/SedeJornada' }
+  /structure/sede-jornadas/{id}:
+    put:
+      tags: [Structure]
+      security: [bearerAuth: []]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name: { type: string, maxLength: 120 }
+                is_active: { type: boolean }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: { $ref: '#/components/schemas/SedeJornada' }
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorMessage' }
+    delete:
+      tags: [Structure]
+      security: [bearerAuth: []]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorMessage' }
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorMessage' }
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorMessage' }
+  /structure/niveles:
+    get:
+      tags: [Structure]
+      security: [bearerAuth: []]
+      parameters:
+        - in: query
+          name: page
+          schema: { type: integer }
+        - in: query
+          name: limit
+          schema: { type: integer }
+        - in: query
+          name: q
+          schema: { type: string }
+        - in: query
+          name: is_active
+          schema: { type: boolean }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items: { $ref: '#/components/schemas/Nivel' }
+                  meta: { $ref: '#/components/schemas/PaginationMeta' }
+    post:
+      tags: [Structure]
+      security: [bearerAuth: []]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name: { type: string, maxLength: 120 }
+                is_active: { type: boolean }
+              required: [name]
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: { $ref: '#/components/schemas/Nivel' }
+  /structure/niveles/{id}:
+    put:
+      tags: [Structure]
+      security: [bearerAuth: []]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name: { type: string, maxLength: 120 }
+                is_active: { type: boolean }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: { $ref: '#/components/schemas/Nivel' }
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorMessage' }
+    delete:
+      tags: [Structure]
+      security: [bearerAuth: []]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorMessage' }
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorMessage' }
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorMessage' }
+  /structure/periodos:
+    get:
+      tags: [Structure]
+      security: [bearerAuth: []]
+      parameters:
+        - in: query
+          name: page
+          schema: { type: integer }
+        - in: query
+          name: limit
+          schema: { type: integer }
+        - in: query
+          name: q
+          schema: { type: string }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items: { $ref: '#/components/schemas/Periodo' }
+                  meta: { $ref: '#/components/schemas/PaginationMeta' }
+    post:
+      tags: [Structure]
+      security: [bearerAuth: []]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name: { type: string, maxLength: 120 }
+                start_date: { type: string, format: date }
+                end_date: { type: string, format: date }
+              required: [name]
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: { $ref: '#/components/schemas/Periodo' }
+  /structure/periodos/{id}:
+    put:
+      tags: [Structure]
+      security: [bearerAuth: []]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name: { type: string, maxLength: 120 }
+                start_date: { type: string, format: date }
+                end_date: { type: string, format: date }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: { $ref: '#/components/schemas/Periodo' }
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorMessage' }
+    delete:
+      tags: [Structure]
+      security: [bearerAuth: []]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorMessage' }
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorMessage' }
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorMessage' }
+  /structure/carreras:
+    get:
+      tags: [Structure]
+      security: [bearerAuth: []]
+      parameters:
+        - in: query
+          name: page
+          schema: { type: integer }
+        - in: query
+          name: limit
+          schema: { type: integer }
+        - in: query
+          name: q
+          schema: { type: string }
+        - in: query
+          name: is_active
+          schema: { type: boolean }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items: { $ref: '#/components/schemas/Carrera' }
+                  meta: { $ref: '#/components/schemas/PaginationMeta' }
+    post:
+      tags: [Structure]
+      security: [bearerAuth: []]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name: { type: string, maxLength: 120 }
+                is_active: { type: boolean }
+              required: [name]
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: { $ref: '#/components/schemas/Carrera' }
+  /structure/carreras/{id}:
+    put:
+      tags: [Structure]
+      security: [bearerAuth: []]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name: { type: string, maxLength: 120 }
+                is_active: { type: boolean }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: { $ref: '#/components/schemas/Carrera' }
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorMessage' }
+    delete:
+      tags: [Structure]
+      security: [bearerAuth: []]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorMessage' }
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorMessage' }
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorMessage' }
+  /structure/asignaturas:
+    get:
+      tags: [Structure]
+      security: [bearerAuth: []]
+      parameters:
+        - in: query
+          name: page
+          schema: { type: integer }
+        - in: query
+          name: limit
+          schema: { type: integer }
+        - in: query
+          name: q
+          schema: { type: string }
+        - in: query
+          name: is_active
+          schema: { type: boolean }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items: { $ref: '#/components/schemas/Asignatura' }
+                  meta: { $ref: '#/components/schemas/PaginationMeta' }
+    post:
+      tags: [Structure]
+      security: [bearerAuth: []]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name: { type: string, maxLength: 120 }
+                is_active: { type: boolean }
+              required: [name]
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: { $ref: '#/components/schemas/Asignatura' }
+  /structure/asignaturas/{id}:
+    put:
+      tags: [Structure]
+      security: [bearerAuth: []]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name: { type: string, maxLength: 120 }
+                is_active: { type: boolean }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: { $ref: '#/components/schemas/Asignatura' }
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorMessage' }
+    delete:
+      tags: [Structure]
+      security: [bearerAuth: []]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorMessage' }
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorMessage' }
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorMessage' }
+  /structure/cursos:
+    get:
+      tags: [Structure]
+      security: [bearerAuth: []]
+      parameters:
+        - in: query
+          name: page
+          schema: { type: integer }
+        - in: query
+          name: limit
+          schema: { type: integer }
+        - in: query
+          name: q
+          schema: { type: string }
+        - in: query
+          name: periodo_id
+          schema: { type: integer }
+        - in: query
+          name: teacher_id
+          schema: { type: integer }
+        - in: query
+          name: sede_jornada_id
+          schema: { type: integer }
+        - in: query
+          name: carrera_id
+          schema: { type: integer }
+        - in: query
+          name: asignatura_id
+          schema: { type: integer }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items: { $ref: '#/components/schemas/Curso' }
+                  meta: { $ref: '#/components/schemas/PaginationMeta' }
+    post:
+      tags: [Structure]
+      security: [bearerAuth: []]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name: { type: string, maxLength: 150 }
+                capacity: { type: integer, minimum: 0 }
+                start_date: { type: string, format: date }
+                end_date: { type: string, format: date }
+                periodo_id: { type: integer }
+                teacher_id: { type: integer }
+                sede_jornada_id: { type: integer }
+                carrera_id: { type: integer }
+                asignatura_id: { type: integer }
+              required: [name]
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: { $ref: '#/components/schemas/Curso' }
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorMessage' }
+  /structure/cursos/{id}:
+    put:
+      tags: [Structure]
+      security: [bearerAuth: []]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name: { type: string, maxLength: 150 }
+                capacity: { type: integer, minimum: 0 }
+                start_date: { type: string, format: date }
+                end_date: { type: string, format: date }
+                periodo_id: { type: integer }
+                teacher_id: { type: integer }
+                sede_jornada_id: { type: integer }
+                carrera_id: { type: integer }
+                asignatura_id: { type: integer }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: { $ref: '#/components/schemas/Curso' }
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorMessage' }
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorMessage' }
+    delete:
+      tags: [Structure]
+      security: [bearerAuth: []]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorMessage' }
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorMessage' }
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorMessage' }
+  /virtual/cursos:
+    get:
+      tags: [Virtual]
+      security: [bearerAuth: []]
+      parameters:
+        - in: query
+          name: page
+          schema: { type: integer }
+        - in: query
+          name: limit
+          schema: { type: integer }
+        - in: query
+          name: q
+          schema: { type: string }
+        - in: query
+          name: curso_id
+          schema: { type: integer }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items: { $ref: '#/components/schemas/CursoVirtual' }
+                  meta: { $ref: '#/components/schemas/PaginationMeta' }
+    post:
+      tags: [Virtual]
+      security: [bearerAuth: []]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                curso_id: { type: integer }
+                description: { type: string, maxLength: 2000 }
+              required: [curso_id]
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: { $ref: '#/components/schemas/CursoVirtual' }
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorMessage' }
+  /virtual/cursos/{id}:
+    put:
+      tags: [Virtual]
+      security: [bearerAuth: []]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                curso_id: { type: integer }
+                description: { type: string, maxLength: 2000 }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: { $ref: '#/components/schemas/CursoVirtual' }
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorMessage' }
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorMessage' }
+    delete:
+      tags: [Virtual]
+      security: [bearerAuth: []]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorMessage' }
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorMessage' }
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorMessage' }
+  /virtual/anuncios:
+    get:
+      tags: [Virtual]
+      security: [bearerAuth: []]
+      parameters:
+        - in: query
+          name: page
+          schema: { type: integer }
+        - in: query
+          name: limit
+          schema: { type: integer }
+        - in: query
+          name: q
+          schema: { type: string }
+        - in: query
+          name: curso_virtual_id
+          schema: { type: integer }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items: { $ref: '#/components/schemas/Anuncio' }
+                  meta: { $ref: '#/components/schemas/PaginationMeta' }
+    post:
+      tags: [Virtual]
+      security: [bearerAuth: []]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                curso_virtual_id: { type: integer }
+                title: { type: string, maxLength: 200 }
+                content: { type: string }
+              required: [curso_virtual_id, title, content]
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: { $ref: '#/components/schemas/Anuncio' }
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorMessage' }
+  /virtual/anuncios/{id}:
+    put:
+      tags: [Virtual]
+      security: [bearerAuth: []]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                curso_virtual_id: { type: integer }
+                title: { type: string, maxLength: 200 }
+                content: { type: string }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: { $ref: '#/components/schemas/Anuncio' }
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorMessage' }
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorMessage' }
+    delete:
+      tags: [Virtual]
+      security: [bearerAuth: []]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorMessage' }
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorMessage' }
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorMessage' }
+  /virtual/actividades:
+    get:
+      tags: [Virtual]
+      security: [bearerAuth: []]
+      parameters:
+        - in: query
+          name: page
+          schema: { type: integer }
+        - in: query
+          name: limit
+          schema: { type: integer }
+        - in: query
+          name: q
+          schema: { type: string }
+        - in: query
+          name: curso_virtual_id
+          schema: { type: integer }
+        - in: query
+          name: type
+          schema: { type: string }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items: { $ref: '#/components/schemas/Actividad' }
+                  meta: { $ref: '#/components/schemas/PaginationMeta' }
+    post:
+      tags: [Virtual]
+      security: [bearerAuth: []]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                curso_virtual_id: { type: integer }
+                type: { type: string, enum: [TEXT, FILE, VIDEO, TASK] }
+                title: { type: string, maxLength: 200 }
+                content: { type: string }
+                youtube_url: { type: string }
+                file_id: { type: integer }
+                is_graded: { type: boolean }
+                due_at: { type: string, format: date-time }
+                attachment_ids:
+                  type: array
+                  items: { type: integer }
+              required: [curso_virtual_id, type, title]
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: { $ref: '#/components/schemas/Actividad' }
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorMessage' }
+  /virtual/actividades/{id}:
+    put:
+      tags: [Virtual]
+      security: [bearerAuth: []]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                curso_virtual_id: { type: integer }
+                type: { type: string, enum: [TEXT, FILE, VIDEO, TASK] }
+                title: { type: string, maxLength: 200 }
+                content: { type: string }
+                youtube_url: { type: string }
+                file_id: { type: integer }
+                is_graded: { type: boolean }
+                due_at: { type: string, format: date-time }
+                attachment_ids:
+                  type: array
+                  items: { type: integer }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: { $ref: '#/components/schemas/Actividad' }
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorMessage' }
+    delete:
+      tags: [Virtual]
+      security: [bearerAuth: []]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorMessage' }
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorMessage' }
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorMessage' }
+  /assessments/quizzes:
+    get:
+      tags: [Assessments]
+      security: [bearerAuth: []]
+      parameters:
+        - in: query
+          name: page
+          schema: { type: integer }
+        - in: query
+          name: limit
+          schema: { type: integer }
+        - in: query
+          name: q
+          schema: { type: string }
+        - in: query
+          name: curso_virtual_id
+          schema: { type: integer }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items: { $ref: '#/components/schemas/Quiz' }
+                  meta: { $ref: '#/components/schemas/PaginationMeta' }
+    post:
+      tags: [Assessments]
+      security: [bearerAuth: []]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                curso_virtual_id: { type: integer }
+                title: { type: string, maxLength: 200 }
+                description: { type: string }
+                start_at: { type: string, format: date-time }
+                end_at: { type: string, format: date-time }
+                time_limit_minutes: { type: integer }
+              required: [curso_virtual_id, title]
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: { $ref: '#/components/schemas/Quiz' }
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorMessage' }
+  /assessments/quizzes/{id}:
+    put:
+      tags: [Assessments]
+      security: [bearerAuth: []]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                curso_virtual_id: { type: integer }
+                title: { type: string, maxLength: 200 }
+                description: { type: string }
+                start_at: { type: string, format: date-time }
+                end_at: { type: string, format: date-time }
+                time_limit_minutes: { type: integer }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: { $ref: '#/components/schemas/Quiz' }
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorMessage' }
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorMessage' }
+    delete:
+      tags: [Assessments]
+      security: [bearerAuth: []]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorMessage' }
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorMessage' }
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorMessage' }
+  /assessments/questions:
+    get:
+      tags: [Assessments]
+      security: [bearerAuth: []]
+      parameters:
+        - in: query
+          name: page
+          schema: { type: integer }
+        - in: query
+          name: limit
+          schema: { type: integer }
+        - in: query
+          name: quiz_id
+          schema: { type: integer }
+        - in: query
+          name: type
+          schema: { type: string }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items: { $ref: '#/components/schemas/Question' }
+                  meta: { $ref: '#/components/schemas/PaginationMeta' }
+    post:
+      tags: [Assessments]
+      security: [bearerAuth: []]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                quiz_id: { type: integer }
+                type: { type: string, enum: [SINGLE, TEXT] }
+                prompt: { type: string }
+                options:
+                  type: array
+                  items: { type: string }
+                correct_option: { type: string }
+              required: [quiz_id, type, prompt]
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: { $ref: '#/components/schemas/Question' }
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorMessage' }
+  /assessments/questions/{id}:
+    put:
+      tags: [Assessments]
+      security: [bearerAuth: []]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                quiz_id: { type: integer }
+                type: { type: string, enum: [SINGLE, TEXT] }
+                prompt: { type: string }
+                options:
+                  type: array
+                  items: { type: string }
+                correct_option: { type: string }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: { $ref: '#/components/schemas/Question' }
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorMessage' }
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorMessage' }
+    delete:
+      tags: [Assessments]
+      security: [bearerAuth: []]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorMessage' }
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorMessage' }
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorMessage' }
+  /assessments/attempts:
+    get:
+      tags: [Assessments]
+      security: [bearerAuth: []]
+      parameters:
+        - in: query
+          name: page
+          schema: { type: integer }
+        - in: query
+          name: limit
+          schema: { type: integer }
+        - in: query
+          name: quiz_id
+          schema: { type: integer }
+        - in: query
+          name: user_id
+          schema: { type: integer }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items: { $ref: '#/components/schemas/Attempt' }
+                  meta: { $ref: '#/components/schemas/PaginationMeta' }
+    post:
+      tags: [Assessments]
+      security: [bearerAuth: []]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                quiz_id: { type: integer }
+              required: [quiz_id]
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: { $ref: '#/components/schemas/Attempt' }
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorMessage' }
+  /assessments/attempts/{id}/finish:
+    post:
+      tags: [Assessments]
+      security: [bearerAuth: []]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: { $ref: '#/components/schemas/Attempt' }
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorMessage' }
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorMessage' }
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorMessage' }
+  /assessments/attempts/{id}:
+    delete:
+      tags: [Assessments]
+      security: [bearerAuth: []]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorMessage' }
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorMessage' }
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorMessage' }
+  /assessments/answers:
+    get:
+      tags: [Assessments]
+      security: [bearerAuth: []]
+      parameters:
+        - in: query
+          name: page
+          schema: { type: integer }
+        - in: query
+          name: limit
+          schema: { type: integer }
+        - in: query
+          name: attempt_id
+          schema: { type: integer }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items: { $ref: '#/components/schemas/Answer' }
+                  meta: { $ref: '#/components/schemas/PaginationMeta' }
+    post:
+      tags: [Assessments]
+      security: [bearerAuth: []]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                attempt_id: { type: integer }
+                question_id: { type: integer }
+                answer_text: { type: string }
+                is_correct: { type: boolean }
+              required: [attempt_id, question_id]
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: { $ref: '#/components/schemas/Answer' }
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorMessage' }
+  /assessments/answers/{id}:
+    put:
+      tags: [Assessments]
+      security: [bearerAuth: []]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                attempt_id: { type: integer }
+                question_id: { type: integer }
+                answer_text: { type: string }
+                is_correct: { type: boolean }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: { $ref: '#/components/schemas/Answer' }
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorMessage' }
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorMessage' }
+    delete:
+      tags: [Assessments]
+      security: [bearerAuth: []]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorMessage' }
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorMessage' }
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorMessage' }
+  /files/presign:
+    post:
+      tags: [Files]
+      security: [bearerAuth: []]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                filename: { type: string }
+                mime_type: { type: string }
+                size: { type: integer }
+              required: [filename, mime_type, size]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      url: { type: string }
+                      key: { type: string }
+                      bucket: { type: string }
+                      expires_in: { type: integer }
+  /files/complete:
+    post:
+      tags: [Files]
+      security: [bearerAuth: []]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                key: { type: string }
+                bucket: { type: string }
+                original_name: { type: string }
+                mime_type: { type: string }
+                size: { type: integer }
+              required: [key, bucket, original_name, mime_type, size]
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: { $ref: '#/components/schemas/FileObject' }
+  /files/{id}:
+    get:
+      tags: [Files]
+      security: [bearerAuth: []]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: { $ref: '#/components/schemas/FileObject' }
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorMessage' }
+  /files/{id}/download:
+    get:
+      tags: [Files]
+      security: [bearerAuth: []]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+        - in: query
+          name: disposition
+          schema: { type: string, enum: [attachment, inline] }
+        - in: query
+          name: filename
+          schema: { type: string }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      url: { type: string }
+                      key: { type: string }
+                      bucket: { type: string }
+                      expires_in: { type: integer }
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorMessage' }
+  /files/{id}/stream:
+    get:
+      tags: [Files]
+      security: [bearerAuth: []]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+        - in: query
+          name: disposition
+          schema: { type: string, enum: [attachment, inline] }
+        - in: query
+          name: filename
+          schema: { type: string }
+      responses:
+        '200':
+          description: Streamed file
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorMessage' }
+  /imports/users:
+    post:
+      tags: [Imports]
+      security: [bearerAuth: []]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                file_id: { type: integer }
+              required: [file_id]
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: { $ref: '#/components/schemas/ImportBatch' }
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorMessage' }
+  /imports/batches:
+    get:
+      tags: [Imports]
+      security: [bearerAuth: []]
+      parameters:
+        - in: query
+          name: page
+          schema: { type: integer }
+        - in: query
+          name: limit
+          schema: { type: integer }
+        - in: query
+          name: type
+          schema: { type: string }
+        - in: query
+          name: status
+          schema: { type: string }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items: { $ref: '#/components/schemas/ImportBatch' }
+                  meta: { $ref: '#/components/schemas/PaginationMeta' }
+  /imports/batches/{id}:
+    get:
+      tags: [Imports]
+      security: [bearerAuth: []]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: { $ref: '#/components/schemas/ImportBatch' }
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id: { type: integer }
+                        row_number: { type: integer }
+                        message: { type: string }
+                        raw_data: { type: string }
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorMessage' }
+  /tracking/heartbeat:
+    post:
+      tags: [Tracking]
+      security: [bearerAuth: []]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                route: { type: string }
+                course_id: { type: integer }
+                timestamp: { type: integer }
+              required: [route, timestamp]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: { type: string }
+                  seconds: { type: integer }
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorMessage' }
+  /tracking/summary:
+    get:
+      tags: [Tracking]
+      security: [bearerAuth: []]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      total_seconds: { type: integer }
+                      by_course:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            curso_id: { type: integer, nullable: true }
+                            curso_name: { type: string, nullable: true }
+                            seconds: { type: integer }
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorMessage' }
+  /tracking/admin/summary:
+    get:
+      tags: [Tracking]
+      security: [bearerAuth: []]
+      parameters:
+        - in: query
+          name: from
+          schema: { type: string, format: date }
+        - in: query
+          name: to
+          schema: { type: string, format: date }
+        - in: query
+          name: course_id
+          schema: { type: integer }
+        - in: query
+          name: user_id
+          schema: { type: integer }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      total_seconds: { type: integer }
+                      by_course:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            curso_id: { type: integer, nullable: true }
+                            curso_name: { type: string, nullable: true }
+                            seconds: { type: integer }
+                      by_user:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            user_id: { type: integer }
+                            email: { type: string }
+                            first_name: { type: string }
+                            last_name: { type: string }
+                            seconds: { type: integer }
+                      by_day:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            day: { type: string, format: date }
+                            seconds: { type: integer }
+                      by_route:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            route: { type: string }
+                            seconds: { type: integer }
+        '422':
+          description: Validation failed
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ValidationError' }
+  /tracking/teacher/summary:
+    get:
+      tags: [Tracking]
+      security: [bearerAuth: []]
+      parameters:
+        - in: query
+          name: from
+          schema: { type: string, format: date }
+        - in: query
+          name: to
+          schema: { type: string, format: date }
+        - in: query
+          name: course_id
+          schema: { type: integer }
+        - in: query
+          name: user_id
+          schema: { type: integer }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      total_seconds: { type: integer }
+                      by_course:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            curso_id: { type: integer, nullable: true }
+                            curso_name: { type: string, nullable: true }
+                            seconds: { type: integer }
+                      by_user:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            user_id: { type: integer }
+                            email: { type: string }
+                            first_name: { type: string }
+                            last_name: { type: string }
+                            seconds: { type: integer }
+                      by_day:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            day: { type: string, format: date }
+                            seconds: { type: integer }
+                      by_route:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            route: { type: string }
+                            seconds: { type: integer }
+        '422':
+          description: Validation failed
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ValidationError' }

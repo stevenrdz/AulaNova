@@ -1,0 +1,73 @@
+﻿# AGENTS.md - LMS Platform
+
+## Status (2026-02-09)
+- Swagger UI corregido (Twig/Asset) y accesible en `/api/docs`.
+- Tracking: resumen admin/teacher con filtros (query `from`, `to`, `course_id`, `user_id`).
+- Files: URL firmada GET vía `/files/{id}/download` + política MinIO privada.
+- Messenger: `failed` transport + retries configurados.
+- Frontend apuntando a API en `http://localhost:8000`.
+- Smoke tests OK: auth/users/structure/virtual/actividades/tracking.
+- Deprecaciones resueltas (Url requireTld, eraseCredentials).
+- Docs: validaciones detalladas en Tracking/Files (docs/api.md).
+- Docs: Auth/Users/Institution/Structure con validaciones (docs/api.md).
+- Docs: OpenAPI YAML corregido (answers + sede-jornadas).
+- Docs: ejemplos reales agregados en users/teachers/admins y updates de virtual (api.md).
+- Docs: respuestas JSON estandarizadas para Structure (PUT/DELETE) en api.md.
+- Docs: OpenAPI schemas con ejemplos completos (User/Curso/Virtual/Assessments/Imports).
+- Tracking: resumen admin/teacher ahora incluye `by_route` (accesos por ruta).
+- Files: endpoint de stream directo `/files/{id}/stream`.
+- DB: migracion agregada para `time_tracking_route_daily`.
+- Tests: phpunit OK luego de migracion en entorno test.
+- Fixtures: recargadas (purge) en entorno dev.
+
+## Pending - Backend (especifico)
+- Tracking: revisar retencion/limpieza de data diaria si aplica.
+- Messenger: correr worker `messenger:consume` en entorno/infra de producción.
+- Docs: OpenAPI detallado, DTOs/validaciones/serializer groups completos.
+- Tests: unit/integration + fixtures adicionales.
+
+## Pending - Frontend (especifico)
+- Admin: CRUDs Structure/Virtual/Assessments/Imports con tablas, filtros, modales, paginación.
+- Teacher: cursos, detalle, anuncios, actividades, evaluaciones.
+- Student: cursos con filtros, detalle con restricciones, tiempo de conexión por curso/total.
+- UX: estados de carga/error, toasts, confirmaciones, accesibilidad.
+- Files: consumo de descargas/URLs firmadas para adjuntos y logo.
+
+## Pending - DevOps/Docs
+- Dockerfiles prod, variables finales, migraciones, backups.
+- Documentar política MinIO, SMTP y pasos de despliegue.
+
+## Notes
+- `logo_url` guarda el `key` de MinIO; la descarga debe ser con URL firmada (`/files/{id}/download`).
+- Autenticación: el login responde con `access_token` y `refresh_token` (snake_case).
+- Las rutas NO llevan prefijo `/api` (ej: `/auth/login`, `/users`, `/structure/*`, `/virtual/*`, `/assessments/*`, `/files/*`, `/imports/*`, `/tracking/*`).
+- DTOs usan snake_case y nombres específicos (ver README). En pruebas E2E fallaba por usar camelCase y campos antiguos.
+- Uploads a MinIO: el `presign` devuelve host `minio`, por lo que la subida debe hacerse dentro del contenedor (`docker compose exec -T ... curl`).
+
+## Ultima sesion (2026-02-09)
+- Swagger UI disponible en `/api/docs`.
+- Tracking admin/teacher summary agregado.
+- Files: descarga con URL firmada.
+- Messenger retries/failures configurados.
+- Documentación actualizada en `docs/api.md`.
+- OpenAPI YAML: rutas corregidas en `docs/openapi.yaml`.
+- API docs: ejemplos añadidos para users/teachers/admins y PUTs de virtual.
+- API docs: estructura (Structure) reescrita y respuestas unificadas.
+- OpenAPI: ejemplos añadidos en schemas principales.
+- Tracking: agregado resumen por ruta (`by_route`) y tabla diaria dedicada.
+- Files: endpoint `/files/{id}/stream` agregado.
+- Tests: phpunit OK (4 tests).
+- Fixtures: `doctrine:fixtures:load --no-interaction` ejecutado.
+
+## Useful commands
+- docker compose --env-file devops/.env -f devops/docker-compose.dev.yml up --build
+- docker compose -f devops/docker-compose.dev.yml exec lms-api php bin/console doctrine:migrations:migrate
+- docker compose -f devops/docker-compose.dev.yml exec lms-api php bin/console lexik:jwt:generate-keypair
+- docker compose -f devops/docker-compose.dev.yml exec lms-api php bin/console doctrine:fixtures:load
+- docker compose -f devops/docker-compose.dev.yml exec -T lms-api php bin/console messenger:consume async -vv
+- docker compose -f devops/docker-compose.dev.yml exec -T lms-api php bin/console messenger:failed:show
+- docker compose -f devops/docker-compose.dev.yml exec -T lms-api php bin/console messenger:failed:retry
+
+## Default credentials
+- admin@lms.local / Admin123!
+- teacher@lms.local / Teacher123!

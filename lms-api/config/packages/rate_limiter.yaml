@@ -1,0 +1,12 @@
+framework:
+  rate_limiter:
+    login:
+      policy: token_bucket
+      limit: 5
+      rate:
+        interval: '1 minute'
+        amount: 5
+    otp:
+      policy: fixed_window
+      limit: 3
+      interval: '15 minutes'
