@@ -81,6 +81,7 @@
 - OpenAPI: Assessments con schemas request + 422 Validation.
 - OpenAPI: Files + Tracking heartbeat con schemas request/response + 422 Validation.
 - Messenger: guia prod agregada (systemd ejemplo) en README.
+- Files: endpoint stream directo ya existe en `FileController` (`/files/{id}/stream`).
 - API docs: ejemplos añadidos para users/teachers/admins y PUTs de virtual.
 - API docs: estructura (Structure) reescrita y respuestas unificadas.
 - OpenAPI: ejemplos añadidos en schemas principales.

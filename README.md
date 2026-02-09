@@ -122,7 +122,6 @@ WantedBy=multi-user.target
 - OpenAPI: Files + Tracking heartbeat con schemas request/response + 422 Validation.
 
 ## Pendientes (especificos)
-- Backend/Files: endpoint de stream directo (opcional).
 - Backend/Messenger: correr worker `messenger:consume` en entorno/infra de producción (systemd/supervisor/k8s).
 - Backend/Tests: unit/integration + fixtures adicionales.
 - DevOps/Prod: dockerfiles prod, envs, migraciones, backups, despliegue en hosting del cliente.
