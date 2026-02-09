@@ -85,6 +85,7 @@ Notas:
 - Tests: phpunit OK (5 tests). ESLint frontend OK (sin errores ni warnings).
 - Fixtures: recargadas con `doctrine:fixtures:load --no-interaction`.
 - Tests: phpunit OK tras recarga de fixtures.
+- Auth: responses incluyen `is_active` en el usuario.
 - Frontend: CRUDs admin de Structure/Virtual/Imports implementados.
 - Frontend: CRUDs admin de Assessments (quizzes/preguntas/intentos/respuestas).
 - Frontend: toasts globales agregados.

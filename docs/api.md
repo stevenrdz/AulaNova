@@ -208,7 +208,8 @@ Respuestas
     "email": "admin@lms.local",
     "first_name": "Admin",
     "last_name": "LMS",
-    "roles": ["ROLE_ADMIN"]
+    "roles": ["ROLE_ADMIN"],
+    "is_active": true
   }
 }
 ```
@@ -235,7 +236,8 @@ Respuestas
     "email": "admin@lms.local",
     "first_name": "Admin",
     "last_name": "LMS",
-    "roles": ["ROLE_ADMIN"]
+    "roles": ["ROLE_ADMIN"],
+    "is_active": true
   }
 }
 ```

@@ -76,6 +76,7 @@
 - Institution: validacion de `logo_url` ampliada (URL o key) y esquema OpenAPI agregado.
 - Fixtures: recargadas con `doctrine:fixtures:load --no-interaction`.
 - Tests: phpunit OK (5 tests).
+- Auth: responses incluyen `is_active` en el usuario.
 - API docs: ejemplos añadidos para users/teachers/admins y PUTs de virtual.
 - API docs: estructura (Structure) reescrita y respuestas unificadas.
 - OpenAPI: ejemplos añadidos en schemas principales.

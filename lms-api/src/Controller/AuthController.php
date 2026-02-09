@@ -196,6 +196,7 @@ class AuthController extends ApiController
             'first_name' => $user->getFirstName(),
             'last_name' => $user->getLastName(),
             'roles' => $user->getRoles(),
+            'is_active' => $user->isActive(),
         ];
     }
 }
