@@ -40,6 +40,49 @@ components:
         errors:
           email:
             - Email invalido
+    TrackingRouteDay:
+      type: object
+      properties:
+        day: { type: string, format: date }
+        seconds: { type: integer }
+      required: [day, seconds]
+      example:
+        day: '2026-02-06'
+        seconds: 600
+    TrackingRouteSummary:
+      type: object
+      properties:
+        route: { type: string }
+        seconds: { type: integer }
+        by_day:
+          type: array
+          items: { $ref: '#/components/schemas/TrackingRouteDay' }
+      required: [route, seconds, by_day]
+      example:
+        route: /virtual/cursos
+        seconds: 600
+        by_day:
+          - day: '2026-02-06'
+            seconds: 600
+    TrackingRoutesResponse:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            total_seconds: { type: integer }
+            by_route:
+              type: array
+              items: { $ref: '#/components/schemas/TrackingRouteSummary' }
+      example:
+        data:
+          total_seconds: 600
+          by_route:
+            - route: /virtual/cursos
+              seconds: 600
+              by_day:
+                - day: '2026-02-06'
+                  seconds: 600
     InstitutionSettings:
       type: object
       properties:
@@ -2900,6 +2943,37 @@ paths:
           content:
             application/json:
               schema: { $ref: '#/components/schemas/ValidationError' }
+  /tracking/admin/routes:
+    get:
+      tags: [Tracking]
+      security: [bearerAuth: []]
+      parameters:
+        - in: query
+          name: from
+          schema: { type: string, format: date }
+        - in: query
+          name: to
+          schema: { type: string, format: date }
+        - in: query
+          name: course_id
+          schema: { type: integer }
+        - in: query
+          name: user_id
+          schema: { type: integer }
+        - in: query
+          name: route
+          schema: { type: string }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/TrackingRoutesResponse' }
+        '422':
+          description: Validation failed
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ValidationError' }
   /tracking/teacher/summary:
     get:
       tags: [Tracking]
@@ -2961,6 +3035,37 @@ paths:
                           properties:
                             route: { type: string }
                             seconds: { type: integer }
+        '422':
+          description: Validation failed
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ValidationError' }
+  /tracking/teacher/routes:
+    get:
+      tags: [Tracking]
+      security: [bearerAuth: []]
+      parameters:
+        - in: query
+          name: from
+          schema: { type: string, format: date }
+        - in: query
+          name: to
+          schema: { type: string, format: date }
+        - in: query
+          name: course_id
+          schema: { type: integer }
+        - in: query
+          name: user_id
+          schema: { type: integer }
+        - in: query
+          name: route
+          schema: { type: string }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/TrackingRoutesResponse' }
         '422':
           description: Validation failed
           content:

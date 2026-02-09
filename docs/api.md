@@ -1666,6 +1666,28 @@ Notas:
 }
 ```
 
+**GET `/tracking/admin/routes`** (ROLE_ADMIN)  
+Query: `from`, `to`, `course_id`, `user_id`, `route`
+Notas:
+- Reporte detallado por ruta + día
+```json
+{
+  "data": {
+    "total_seconds": 900,
+    "by_route": [
+      {
+        "route": "/virtual/cursos",
+        "seconds": 600,
+        "by_day": [
+          { "day": "2026-02-05", "seconds": 200 },
+          { "day": "2026-02-06", "seconds": 400 }
+        ]
+      }
+    ]
+  }
+}
+```
+
 **GET `/tracking/teacher/summary`** (ROLE_TEACHER)  
 Query: `from`, `to`, `course_id`, `user_id`
 Notas:
@@ -1697,6 +1719,27 @@ Respuestas de error
 {
   "message": "Validation failed",
   "errors": { "from": ["Formato invÃ¡lido. Usa una fecha vÃ¡lida."] }
+}
+```
+
+**GET `/tracking/teacher/routes`** (ROLE_TEACHER)  
+Query: `from`, `to`, `course_id`, `user_id`, `route`
+Notas:
+- Reporte detallado por ruta + día (solo cursos del docente)
+```json
+{
+  "data": {
+    "total_seconds": 600,
+    "by_route": [
+      {
+        "route": "/virtual/cursos",
+        "seconds": 600,
+        "by_day": [
+          { "day": "2026-02-06", "seconds": 600 }
+        ]
+      }
+    ]
+  }
 }
 ```
 

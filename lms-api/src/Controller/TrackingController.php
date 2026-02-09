@@ -155,6 +155,27 @@ class TrackingController extends ApiController
         return $this->json(['data' => $this->buildSummaryResponse($qb, $routeQb)]);
     }
 
+    #[Route('/admin/routes', methods: ['GET'])]
+    #[IsGranted('ROLE_ADMIN')]
+    public function adminRoutes(Request $request): JsonResponse
+    {
+        $filters = $this->parseRouteFilters($request);
+        if ($filters instanceof JsonResponse) {
+            return $filters;
+        }
+
+        $routeQb = $this->createRouteSummaryQueryBuilder(
+            $filters['from'],
+            $filters['to'],
+            $filters['course_id'],
+            $filters['user_id'],
+            null,
+            $filters['route']
+        );
+
+        return $this->json(['data' => $this->buildRouteDailyResponse($routeQb)]);
+    }
+
     #[Route('/teacher/summary', methods: ['GET'])]
     #[IsGranted('ROLE_TEACHER')]
     public function teacherSummary(Request $request): JsonResponse
@@ -186,6 +207,50 @@ class TrackingController extends ApiController
         );
 
         return $this->json(['data' => $this->buildSummaryResponse($qb, $routeQb, true)]);
+    }
+
+    #[Route('/teacher/routes', methods: ['GET'])]
+    #[IsGranted('ROLE_TEACHER')]
+    public function teacherRoutes(Request $request): JsonResponse
+    {
+        $filters = $this->parseRouteFilters($request);
+        if ($filters instanceof JsonResponse) {
+            return $filters;
+        }
+
+        $user = $this->getUser();
+        if (!$user instanceof User) {
+            return $this->json(['message' => 'Unauthorized'], 401);
+        }
+
+        $routeQb = $this->createRouteSummaryQueryBuilder(
+            $filters['from'],
+            $filters['to'],
+            $filters['course_id'],
+            $filters['user_id'],
+            $user,
+            $filters['route']
+        );
+
+        return $this->json(['data' => $this->buildRouteDailyResponse($routeQb, true)]);
+    }
+
+    private function parseRouteFilters(Request $request): array|JsonResponse
+    {
+        $filters = $this->parseSummaryFilters($request);
+        if ($filters instanceof JsonResponse) {
+            return $filters;
+        }
+
+        $route = trim((string) $request->query->get('route', ''));
+
+        return [
+            'from' => $filters['from'],
+            'to' => $filters['to'],
+            'course_id' => $filters['course_id'],
+            'user_id' => $filters['user_id'],
+            'route' => $route !== '' ? $route : null,
+        ];
     }
 
     private function parseSummaryFilters(Request $request): array|JsonResponse
@@ -247,7 +312,8 @@ class TrackingController extends ApiController
         ?\DateTimeImmutable $to,
         ?int $courseId,
         ?int $userId,
-        ?User $teacher = null
+        ?User $teacher = null,
+        ?string $route = null
     ) {
         $qb = $this->entityManager->createQueryBuilder();
         $qb->from(TimeTrackingRouteDaily::class, 'tr')
@@ -269,8 +335,66 @@ class TrackingController extends ApiController
         if ($teacher !== null) {
             $qb->andWhere('c.teacher = :teacher')->setParameter('teacher', $teacher);
         }
+        if ($route !== null) {
+            $qb->andWhere('tr.route = :route')->setParameter('route', $route);
+        }
 
         return $qb;
+    }
+
+    private function buildRouteDailyResponse($routeQb, bool $hideNullCourse = false): array
+    {
+        $total = (int) (clone $routeQb)
+            ->select('COALESCE(SUM(tr.seconds), 0)')
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        $byRouteQb = (clone $routeQb)
+            ->select('tr.route AS route, COALESCE(SUM(tr.seconds), 0) AS seconds')
+            ->groupBy('tr.route')
+            ->orderBy('seconds', 'DESC');
+
+        $byRouteDayQb = (clone $routeQb)
+            ->select('tr.route AS route, tr.day AS day, COALESCE(SUM(tr.seconds), 0) AS seconds')
+            ->groupBy('tr.route, tr.day')
+            ->orderBy('tr.route', 'ASC')
+            ->addOrderBy('tr.day', 'ASC');
+
+        if ($hideNullCourse) {
+            $byRouteQb->andWhere('c.id IS NOT NULL');
+            $byRouteDayQb->andWhere('c.id IS NOT NULL');
+        }
+
+        $byRoute = [];
+        foreach ($byRouteQb->getQuery()->getArrayResult() as $row) {
+            $route = (string) $row['route'];
+            $byRoute[$route] = [
+                'route' => $route,
+                'seconds' => (int) $row['seconds'],
+                'by_day' => [],
+            ];
+        }
+
+        foreach ($byRouteDayQb->getQuery()->getArrayResult() as $row) {
+            $route = (string) $row['route'];
+            if (!isset($byRoute[$route])) {
+                $byRoute[$route] = [
+                    'route' => $route,
+                    'seconds' => 0,
+                    'by_day' => [],
+                ];
+            }
+            $day = $row['day'] instanceof \DateTimeImmutable ? $row['day']->format('Y-m-d') : (string) $row['day'];
+            $byRoute[$route]['by_day'][] = [
+                'day' => $day,
+                'seconds' => (int) $row['seconds'],
+            ];
+        }
+
+        return [
+            'total_seconds' => $total,
+            'by_route' => array_values($byRoute),
+        ];
     }
 
     private function buildSummaryResponse($qb, $routeQb, bool $hideNullCourse = false): array

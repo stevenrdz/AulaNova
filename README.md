@@ -59,6 +59,7 @@ Notas:
 - Uploads a MinIO: el `presign` devuelve host `minio`; la subida debe hacerse dentro del contenedor (`docker compose exec -T ... curl`).
 - Uploads desde browser: configurar `MINIO_PUBLIC_ENDPOINT` (ej: `http://localhost:9000`) para que el presign use host accesible.
 - Tracking: considerar job diario (cron) para consolidación/retención si el volumen de accesos crece.
+  - Command: `php bin/console tracking:cleanup --days=180`.
 
 ## Ultima sesion (2026-02-09)
 - Swagger UI corregido (Twig/Asset) y accesible en `/api/docs`.
@@ -97,10 +98,11 @@ Notas:
 - Backend: GET de preguntas para estudiantes (sin `correct_option`).
 - Backend: entregas de actividades (submissions) con calificacion y feedback.
   - Frontend: entregas con adjuntos (presign + complete) y descarga (student/teacher).
+- Tracking: nuevos reportes por ruta/día (`/tracking/admin/routes`, `/tracking/teacher/routes`).
+- Tracking: comando `tracking:cleanup` para retención diaria.
 
 ## Pendientes (especificos)
 - Backend: auth/users/structure/virtual/assessments/imports completado.
-- Backend/Tracking: consolidación diaria y reportes adicionales de accesos (cron/worker).
 - Backend/Files: endpoint de stream directo (opcional).
 - Backend/Messenger: correr worker `messenger:consume` en entorno/infra de producción (systemd/supervisor/k8s).
 - Backend/Docs: OpenAPI detallado por módulo, DTOs/validaciones/serializer groups completos.

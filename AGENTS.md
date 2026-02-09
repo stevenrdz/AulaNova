@@ -42,7 +42,6 @@
 - Frontend: ESLint TS/Vue configurado y auto-fix aplicado.
 
 ## Pending - Backend (especifico)
-- Tracking: revisar retencion/limpieza de data diaria si aplica.
 - Messenger: correr worker `messenger:consume` en entorno/infra de producción (systemd/supervisor/k8s).
 - Docs: OpenAPI detallado, DTOs/validaciones/serializer groups completos.
 - Tests: unit/integration + fixtures adicionales.
@@ -77,6 +76,7 @@
 - Fixtures: recargadas con `doctrine:fixtures:load --no-interaction`.
 - Tests: phpunit OK (5 tests).
 - Auth: responses incluyen `is_active` en el usuario.
+- Tracking: nuevos reportes por ruta/dia y comando `tracking:cleanup`.
 - API docs: ejemplos añadidos para users/teachers/admins y PUTs de virtual.
 - API docs: estructura (Structure) reescrita y respuestas unificadas.
 - OpenAPI: ejemplos añadidos en schemas principales.
